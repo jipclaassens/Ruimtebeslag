@@ -1,0 +1,430 @@
+container typeringen: isHidden = "True", using = "eenheden"
+{
+	unit<uint32> Kwartalen : nrofrows = 24
+	{
+		attribute<uint32> values       :     [201201 
+												// ,201204, 201207, 201210
+											, 201301 
+												// ,201304, 201307, 201310
+											, 201401, 201404, 201407, 201410
+											, 201501, 201504, 201507, 201510
+											, 201601, 201604, 201607, 201610
+											, 201701, 201704, 201707, 201710
+											, 201801, 201804, 201807, 201810
+											, 201901
+											, 202001
+											];
+		attribute<uint32> values_prev  := MakeDefined(rjoin(id(.) -1, id(.), values),201201);
+		attribute<string> name         := 'Y' + string(values);
+		attribute<string> name_prev    := 'Y' + string(values_prev);
+		attribute<string> name_triv    := right(name, 2) == '01' 
+											? left(name, 5) + '_Q4' 
+											: right(name, 2) == '04' 
+												? left(name, 5) + '_Q1' 
+												: right(name, 2) == '07' 
+													? left(name, 5) + '_Q2' 
+													: right(name, 2) == '10' 
+														? left(name, 5) + '_Q3' 
+														: name;
+		attribute<string> name_triv_prev   := rjoin(values_prev, values, name_triv);
+		attribute<string> name_triv_2prev  := rjoin(values_prev, values, name_triv_prev);
+		attribute<string> name_triv_3prev  := rjoin(values_prev, values, name_triv_2prev);
+		attribute<string> name_triv_4prev  := rjoin(values_prev, values, name_triv_3prev);
+	}
+
+	unit<uint8> vbo_gebruiksdoel: nrofrows = 11
+	{
+		attribute<uint8> ID := ID(.);
+		attribute<string> label:
+		[
+			'bijeenkomstfunctie','celfunctie','gezondheidszorgfunctie','industriefunctie','kantoorfunctie','logiesfunctie'
+			,'onderwijsfunctie','overige gebruiksfunctie','sportfunctie','winkelfunctie','woonfunctie'
+		];
+		attribute<string> name := replace(replace(label,' ','_'), 'functie','');
+		// attribute<uint32> BrushColor:  DialogType = "BrushColor",[rgb(255,255,255), rgb(  0,129,  0),rgb(  0,  0,255),rgb(255,220,  0),rgb(255,  0,  0)];
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+		
+		attribute<bool>   IsUtiliteit := label != 'woonfunctie';
+		unit<uint8> Utiliteiten := subset(IsUtiliteit)
+		{
+			attribute<string> label        := ../label[nr_OrgEntity];
+			attribute<string> name         := ../name[nr_OrgEntity];
+			attribute<uint32> BrushColor   := ../BrushColor[nr_OrgEntity], DialogType = "BrushColor";
+		}
+	}
+	
+		unit<uint8> type_woonpand_src: nrofrows = 6
+	{
+		attribute<string>             label              :  ['geen woonpand','vrijstaand','twee onder 1 kap','hoekwoning','tussenwoning','appartement'], DialogType = "LabelText";
+		attribute<string>             name               := replace(label, ' ', '_');
+		attribute<type_woonpand>      woonpand_rel       :  [0,1,2,3,3,4];
+		attribute<type_woonpand_3>    woonpand_3_rel     :  [0,1,1,1,1,2];
+		
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+	
+	unit<uint8> type_woonpand: nrofrows = 5
+	{
+		attribute<string>            label               :  ['geen woonpand','vrijstaand','twee onder 1 kap','rijtjeswoning','appartement'], DialogType = "LabelText";
+		attribute<string>            name                := replace(label, ' ', '_');
+		attribute<uint32>            BrushColor          :  [rgb(255,255,255), rgb(  0,129,  0),rgb(  0,  0,255),rgb(255,220,  0),rgb(255,  0,  0)], DialogType = "BrushColor";
+		
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+
+	unit<uint32> jaren := range(uint32, 2012, 2022)
+	{
+		attribute<int32>  values  := id(.)[int32];
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+	}
+	
+	unit<uint32> BBG_jaren : nrofrows = 8
+	{
+		attribute<uint32>  values  : [1996, 2000, 2003, 2006, 2008, 2010, 2012, 2015];
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(values);
+	}
+	
+	unit<uint32> jaren96_11 := range(uint32, 1996, 2012)
+	{
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+	
+	unit<uint32> jaren00_11 := range(uint32, 2000, 2012)
+	{
+		// attribute<int32>  value;
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+	
+	unit<uint32> jaren00_12 := range(uint32, 2000, 2013)
+	{
+		// attribute<int32>  value;
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+	}
+	
+	unit<uint32> jaren12_18 := range(uint32, 2012, 2019)
+	{
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+	}
+	unit<uint32> jaren12_19 := range(uint32, 2012, 2020)
+	{
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+		attribute<bool>   HeeftBAG   := value >= 2012;
+	}
+	
+	unit<uint32> NoData: NrOfrows = 1
+	{
+		attribute<string> name: ['NA'];
+		attribute<string> Label := name, DialogType = "LabelText";
+		attribute<uint32> value := const(0,.);
+	}
+	
+	unit<uint32> jaren12_19_nodata := union_unit(NoData, jaren12_19)
+	{
+		attribute<string>   name         := union_data(., NoData/name, jaren12_19/name);
+		attribute<string>   Label        := union_data(., NoData/Label, jaren12_19/Label), DialogType = "LabelText";
+		attribute<uint32>   value        := union_data(., NoData/value, jaren12_19/value);
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+	
+	unit<uint32> jaren12_20 := range(uint32, 2012, 2021)
+	{
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+		attribute<bool>   HeeftBAG   := value >= 2012;
+	}
+	unit<uint32> jaren13_20 := range(uint32, 2013, 2021)
+	{
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+		attribute<bool>   HeeftBAG   := value >= 2012;
+	}
+	
+	unit<uint32> jaren00_19 := range(uint32, 2000, 2020)
+	{
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+		attribute<bool>   HeeftBAG   := value >= 2012;
+	}
+	
+	unit<uint32> jaren00_20 := range(uint32, 2000, 2021)
+	{
+		attribute<string> label   := name , DialogType = "LabelText";
+		attribute<string> name    := 'Y' + string(id(.));
+		attribute<uint32> value   := id(.);
+		attribute<bool>   HeeftBAG   := value >= 2012;
+	}
+	
+	unit<uint8> pand_status : nrofrows = 10
+	{
+		attribute<string>    label     : ['Bouw gestart','Bouwvergunning verleend','Niet gerealiseerd pand','Pand buiten gebruik','Pand gesloopt','Pand in gebruik','Pand in gebruik (niet ingemeten)','Sloopvergunning verleend','Pand ten onrechte opgevoerd','Verbouwing pand'], DialogType = "LabelText";
+		attribute<string>    name      := replace(label, ' ', '_', '-', '_', '(', '', ')', '');
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+	
+	unit<uint8> vbo_status : nrofrows = 8
+	{
+		attribute<string>    label     : ['Niet gerealiseerd verblijfsobject','Verblijfsobject buiten gebruik','Verblijfsobject gevormd','Verblijfsobject in gebruik','Verblijfsobject in gebruik (niet ingemeten)','Verblijfsobject ingetrokken','Verblijfsobject ten onrechte opgevoerd', 'Verbouwing verblijfsobject'], DialogType = "LabelText";
+		attribute<string>    name      := replace(label, ' ', '_', '-', '_', '(', '', ')', '');
+		attribute<bool>      IsVoorraad : [FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE];
+		attribute<bool>      IsIngetrokken : [FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE];
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+	unit<uint8> TXLJobs7: NrOfrows = 7
+	{
+		attribute<string> name: ['landbouw', 'nijverheid', 'logistiek', 'detailhandel', 'ov_consumentendiensten', 'zak_dienstverlening', 'overheid_kw_diensten'];
+		attribute<string> Label := name, DialogType = "LabelText";
+		attribute<string> TXLTbl_Ref := name;
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+	
+
+	
+	unit<uint8> TXLJobs7_nodata := union_unit_uint8(NoData, TXLJobs7)
+	{
+		attribute<string>   name         := union_data(., NoData/name, TXLJobs7/name);
+		attribute<string>   Label        := union_data(., NoData/Label, TXLJobs7/Label), DialogType = "LabelText";
+		attribute<TXLJobs7> TXLJobs7_rel := union_data(., (0/0)[TXLJobs7], 0[TXLJobs7], 1[TXLJobs7], 2[TXLJobs7], 3[TXLJobs7], 4[TXLJobs7], 5[TXLJobs7], 6[TXLJobs7]);
+		attribute<string>   TXLTbl_Ref := name;
+		
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
+	
+	
+	unit<uint32> SBI08
+	:  StorageName = "%SourceDataDir%/RSL/Grondgebruik/SBI2008_2018_TIGRIS_sector.csv"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True" 
+	{
+		attribute<TXLJobs9> TXLJobs9_rel := Tigris_sector[TXLJobs9];
+		attribute<TXLJobs7> TXLJobs7_rel := TXLJobs9/TXLJobs7_rel[TXLJobs9_rel];
+	}
+	unit<uint8> TXLJobs9: NrOfrows = 9
+	{
+		attribute<string>   name          : ['Onbekend', 'landbouw', 'nijverheid', 'logistiek', 'zak_dienstverlening', 'overheid_kw_diensten', 'ov_consumentendiensten', 'detailhandel', 'Zorg'];
+		attribute<TXLJobs7> TXLJobs7_rel  := union_data(., (0/0)[TXLJobs7], 0[TXLJobs7], 1[TXLJobs7], 2[TXLJobs7], 5[TXLJobs7], 6[TXLJobs7], 4[TXLJobs7], 3[TXLJobs7], 6[TXLJobs7]);
+		attribute<string>   Label         := name, DialogType = "LabelText";
+		attribute<string>   TXLTbl_Ref    := name;
+	}
+	
+	unit<uint8> IBIS: nrofrows = 9
+	{
+		attribute<string> code: ['X','A','B','C','C1','C2','C3','C4','C5'];
+		attribute<string> name: ['Onbekend'
+									, 'Zeehaventerrein'
+									, 'Bedrijventerrein'
+									, 'Economische_zone'
+									, 'EZ_retail_meubelboulevards'
+									, 'EZ_onderwijslocaties'
+									, 'EZ_Zorglocaties'
+									, 'EZ_platform_gebonden_bedrijvigheid'
+									, 'EZ_agribusiness_complexen'
+								];
+		attribute<string> Label:= name, DialogType = "LabelText";
+		container V := for_each_nedv(name, 'value('+string(id(.))+', ..)', void, .);
+	}
+	
+	unit<uint8> BBG: NrOfRows = 39
+	{
+		unit<uint32> Elements  := Range(uint32, 0, nrAttr*#.)
+		{
+			attribute<String> Text:
+			[
+				// BBG_EK, Label                         , r  , g   , b   , 10k rel, onbebouwbaar, pot, 'gg_10k_anders_rel', 'BBG'
+				' 0','NoData',                           '255','255','255', '0', '1','0','0' , '0','0','0',
+				'10','spoorwegen',                       '115',' 76','  0', '4', '1','1','4' , '3','5','4',
+				'11','hoofdweg',                         '100','100','100', '4', '1','1','4' , '3','5','4',
+				'12','vliegveld',                        '109','109','109', '4', '1','1','4' , '4','5','4',
+				'20','woongebied',                       '254',' 60','  0', '1', '0','1','1' , '1','1','1',
+				'21','detailhandel en horeca',           '254','190','  0', '2', '0','1','6' , '1','11','2',
+				'22','openbare voorzieningen',           '254','238','  0', '2', '0','1','7' , '2','10','2',
+				'23','sociaal-culturele voorzieningen',  '254','132',' 25', '2', '0','1','7' , '2','8','2',
+				'24','bedrijfsterreinen',                '169','169','169', '2', '0','1','2' , '1','6','2',
+				'30','stortplaatsen',                    '179','122','157', '2', '0','1','2' , '2','14','2',
+				'31','wrakkenopslagplaatsen',            '179','122','157', '2', '0','1','2' , '2','14','2',
+				'32','begraafplaats',                    '103','174','  0', '2', '0','1','5' , '2','12','2',
+				'33','delfstoffenwinning',               '173','164','254', '2', '0','1','2' , '4','14','2',
+				'34','bouwterrein',                      '254','211','127', '3', '0','1','3' , '4','7','3',
+				'35','semi verhard overig terrein',      '254','250','194', '2', '0','1','2' , '4','9','2',
+				'40','parken en plantsoenen',            '177','214','  0', '5', '0','1','5' , '2','12','5',
+				'41','sportterreinen',                   '128','128','  0', '5', '0','1','5' , '2','12','5',
+				'42','volkstuinen',                      '174','151',' 75', '5', '0','1','5' , '2','12','5',
+				'43','dagrecreatieve terreinen',         '226','254',' 95', '2', '0','1','5' , '2','4','2',
+				'44','verblijfsrecreatie',               '151','254','  0', '2', '0','1','5' , '4','4','2',
+				'50','glastuinbouw',                     '214','133','137', '6', '0','1','5' , '4','2','6',
+				'51','overige agrarisch gebruik',        '233','245','190', '6', '0','1','5' , '4','2','7',
+				'60','bos',                              '103','174','  0', '7', '0','1','5' , '4','3','8',
+				'61','droog natuurlijk terrein',         '254','223','223', '7', '0','1','5' , '4','3','9',
+				'62','nat natuurlijk terrein',           '105','213','180', '7', '0','1','5' , '4','3','9',
+				'70','IJsselmeer/Markermeer',            '151','219','242', '8', '1','0','8' , '4','13','10',
+				'71','afgesloten zeearm',                ' 20','164','171', '8', '1','0','8' , '3','13','10',
+				'72','Rijn en Maas',                     '151','219','242', '8', '1','0','8' , '3','13','10',
+				'73','Randmeer',                         ' 20','164','171', '8', '1','0','8' , '3','13','10',
+				'74','spaarbekkens',                     '151','219','242', '8', '1','0','8' , '4','13','10',
+				'75','water met een recreatieve functie','151','219','242', '8', '1','1','8' , '4','13','10',
+				'76','water met delfstofwinningsfunctie','151','219','242', '8', '1','1','8' , '4','13','10',
+				'77','vloei- en/of slibveld',            '151','219','242', '2', '1','1','8' , '2','13','2',
+				'78','overig binnenwater',               '151','219','242', '8', '1','1','8' , '3','13','10',
+				'80','Waddenzee-Eems-Dollard',           '151','219','242', '9', '1','0','8' , '4','13','11',
+				'81','Oosterschelde',                    '151','219','242', '8', '1','0','8' , '4','13','10',
+				'82','Westerschelde',                    '151','219','242', '8', '1','0','8' , '4','13','10',
+				'83','Noordzee',                         '151','219','242', '9', '1','0','8' , '4','13','11',
+				'90','Buitenland',                       '255','255','255', '0', '1','0','9' , '4','0','0'
+			]; 
+		}
+		attribute<uint8>       id              := id(.);
+		attribute<uint8>        bbg_ek          := Elements/Text[value(UInt32(ID(.))* nrAttr + 0, Elements)][uint8];
+		attribute<string>       label           := Elements/Text[value(UInt32(ID(.))* nrAttr + 1, Elements)], DialogType = "LabelText";
+		attribute<uint8>        r               := Elements/Text[value(UInt32(ID(.))* nrAttr + 2, Elements)][uint8];
+		attribute<uint8>        g               := Elements/Text[value(UInt32(ID(.))* nrAttr + 3, Elements)][uint8];
+		attribute<uint8>        b               := Elements/Text[value(UInt32(ID(.))* nrAttr + 4, Elements)][uint8];
+		attribute<uint8>        gg_10k_rel      := Elements/Text[value(UInt32(ID(.))* nrAttr + 5, Elements)][uint8];
+		attribute<uint8>        onbebouwbaar    := Elements/Text[value(UInt32(ID(.))* nrAttr + 6, Elements)][uint8];
+		attribute<uint8>        potentiaal      := Elements/Text[value(UInt32(ID(.))* nrAttr + 7, Elements)][uint8];
+		
+		attribute<uint8>        gg_10k_anders_rel:= Elements/Text[value(UInt32(ID(.))* nrAttr + 8, Elements)][uint8];
+		attribute<begr_beb_geb> begr_beb_geb_rel := Elements/Text[value(UInt32(ID(.))* nrAttr + 9, Elements)][uint8];
+		attribute<gg_RuimtebeslagRapport> gg_RuimtebeslagRapport_rel := Elements/Text[value(UInt32(ID(.))* nrAttr + 10, Elements)][uint8];
+		attribute<uint8>        gg_12k_rel      := Elements/Text[value(UInt32(ID(.))* nrAttr + 11, Elements)][uint8];
+		attribute<string>       gg_RuimtebeslagRapport_name := gg_RuimtebeslagRapport/name[gg_RuimtebeslagRapport_rel];
+		
+		attribute<string>       name            := replace(label, ' ', '_', '/', '_', '-', '_');
+		attribute<uint32>       BrushColor      := rgb(r, g, b), DialogType = "BrushColor";
+		attribute<uint32>       PenColor        := BrushColor, DialogType = "PenColor";
+		parameter<int16>        PenWidth        := 0[int16], DialogType = "penWidth";
+		attribute<uint32>       SymbolColor     := BrushColor, DialogType = "SymbolColor";
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+		parameter<uint32> nrAttr := 12;
+
+		unit<uint8> gg_RuimtebeslagRapport : nrofrows = 15
+		{
+			attribute<string> label : [
+			'OSA' //0
+			,'Wonen' //1
+			,'Landbouw' //2
+			,'Natuur' //3
+			,'Recreatieterrein' //4
+			,'Infrastructuur' //5
+			,'Bedrijventerrein' //6
+			,'Bouwterrein' //7
+			,'SociaalCultureleVoorzieningen' //8
+			,'OverigSemiBebouwdTerrein' //9
+			,'OpenbareVoorzieningen'//10
+			,'DetailhandelenHoreca' //11
+			,'StedelijkGroen' //12
+			,'Water' //13
+			,'Rest' //14
+			],
+			DialogType = "LabelText";
+			attribute<string> name := replace(label, ' ', '_');
+			container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+		}
+		
+		
+		unit<uint8> gg_10K: nrofrows = 10
+		{
+			attribute<string> label:    [
+			'OSA_',
+			'residential',
+			'otherbuiltup',
+			'construction',
+			'infrastructure',
+			'urbangreen',
+			'agriculture',
+			'nature',
+			'water',
+			'exteriorwater'],
+			DialogType = "LabelText";
+			attribute<string> name := replace(label, ' ', '_');
+			container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+			attribute<gg_3K> gg_3K_rel :[null,0,1,1,1,2,2,2,2,null];
+			attribute<uint8> id := id(.);
+		}
+		unit<uint8> gg_12K: nrofrows = 12
+		{
+			attribute<string> label:    [
+			'OSA_', 
+			'residential',
+			'otherbuiltup',
+			'construction',
+			'infrastructure',
+			'urbangreen',
+			'greenhouses',
+			'agriculture',
+			'forest',
+			'othernature',
+			'water',
+			'exteriorwater'],
+			DialogType = "LabelText";
+			attribute<string> name := replace(label, ' ', '_');
+			container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+			attribute<gg_3K> gg_3K_rel :[null,0,1,1,1,2,2,2,2,null];
+			attribute<uint8> id := id(.);
+		}
+		
+		unit<uint8> gg_5k : nrofrows = 5
+		{
+			attribute<string> label:    [
+			'OSA',
+			'builtup',
+			'infrastructure',
+			'greenareas',
+			'water'
+			], DialogType = "LabelText";
+			attribute<string>  name := replace(label, ' ', '_');
+			container          V    := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+			attribute<uint8>   id   := id(.);
+		}
+
+		unit<uint8> gg_3K: nrofrows = 3
+		{
+			attribute<uint8> id := id(.);
+			attribute<string> label:    ['dens','grey','green'], DialogType = "LabelText";
+			attribute<string> name := replace(label, ' ', '_');
+			container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+		}
+		
+		unit<uint8> BBG_jaren : nrofrows = 8
+		{
+			attribute<uint32>  values   : [1996, 2000, 2003, 2006, 2008, 2010, 2012, 2015];
+			attribute<string>  name     := 'y' + string(values), DialogType = "LabelText";
+		}
+		
+		unit<uint8> BBG_potential := subset(potentiaal == 1b)
+		{
+			attribute<uint8>        org_id          := ../id[nr_OrgEntity];
+			attribute<uint8>        bbg_ek          := ../bbg_ek[nr_OrgEntity];
+			attribute<string>       label           := ../label[nr_OrgEntity], DialogType = "LabelText";
+			attribute<string>       name            := ../name[nr_OrgEntity];
+			attribute<uint32>       BrushColor      := ../BrushColor[nr_OrgEntity], DialogType = "BrushColor";
+			attribute<uint32>       PenColor        := ../PenColor[nr_OrgEntity], DialogType = "PenColor";
+			parameter<int16>        PenWidth        := 0[int16], DialogType = "penWidth";
+			attribute<uint32>       SymbolColor     := ../SymbolColor[nr_OrgEntity], DialogType = "SymbolColor";
+			container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+		}
+		
+		unit<uint8> begr_beb_geb: nrofrows = 5
+		{
+			attribute<string> label:    ['NoData','primair','secundair_algm','secundair_infra','buitengebied'], DialogType = "LabelText";
+			attribute<string> name := replace(label, ' ', '_');
+			container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+		}
+	}
+
+}

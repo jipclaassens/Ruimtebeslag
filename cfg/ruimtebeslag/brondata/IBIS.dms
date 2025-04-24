@@ -1,0 +1,295 @@
+container IBIS : using = "typeringen"
+{
+	container Y2005
+	{
+		unit<uint32> Kantoren
+		:  StorageName = "%SourceDataDir%/IBIS/IBIS2005_Kantoor.shp"
+		,  StorageType = "gdal.vect"
+		,  StorageReadOnly = "True"
+		,  DialogType = "Map"
+		,  DialogData = "geometry"
+		,  FreeData = "False"
+		{
+			attribute<geometries/rdc>             geometry ;
+		}
+		unit<uint32> Terreinen
+		:  StorageName = "%SourceDataDir%/IBIS/IBIS2005_Terrein.shp"
+		,  StorageType = "gdal.vect"
+		,  StorageReadOnly = "True"
+		,  DialogType = "Map"
+		,  DialogData = "geometry"
+		,  FreeData = "False"
+		{
+			attribute<geometries/rdc>             geometry (poly) ;
+			attribute<m2>                         area := abs(area(geometry, m2));
+		}
+	}
+	
+	unit<uint32> Y2006
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2006_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area              := abs(area(geometry, m2));
+		attribute<ha>                         uitgegeven        := netuitg[ha];
+	}
+	unit<uint32> Y2007
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2007_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area              := abs(area(geometry, m2));
+		attribute<ha>                         uitgegeven        := netuitg[ha];
+	}
+	unit<uint32> Y2008
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2008_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<m2>                         area := abs(area(geometry, m2));
+	}
+	unit<uint32> Y2009
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2009_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area := abs(area(geometry, m2));
+		attribute<ha>                         bruto := const(0, ., ha);
+		attribute<ha>                         netto := const(0, ., ha);
+		attribute<ha>                         uitgegeven        := const(0, ., ha);
+	}
+	unit<uint32> Y2010
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2010_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area              := abs(area(geometry, m2));
+		attribute<ha>                         uitgegeven        := netuitg[ha];
+	}
+	unit<uint32> Y2011
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2011_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area              := abs(area(geometry, m2));
+		attribute<ha>                         uitgegeven        := netuitg[ha];
+	}
+	unit<uint32> Y2012
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2011_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area              := abs(area(geometry, m2));
+		attribute<ha>                         uitgegeven        := netuitg[ha];
+	}
+	unit<uint32> Y2013
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2011_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area              := abs(area(geometry, m2));
+		attribute<ha>                         uitgegeven        := netuitg[ha];
+	}
+	unit<uint32> Y2014
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2011_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area              := abs(area(geometry, m2));
+		attribute<ha>                         uitgegeven        := netuitg[ha];
+	}
+	unit<uint32> Y2015
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS2011_Terrein.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	{
+		attribute<geometries/rdc>             geometry (poly) ;
+		attribute<string>                     WRKLCTTP;
+		attribute<IBIS>                       type_rel          := rlookup(WRKLCTTP, IBIS/code);
+		attribute<m2>                         area              := abs(area(geometry, m2));
+		attribute<ha>                         uitgegeven        := netuitg[ha];
+	}
+	unit<uint32> Y2016
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS_NL_2016.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	// ,  SyncMode = "None"
+	{
+		attribute<geometries/rdc>             geometry (poly);
+		attribute<string>                WLOC_TYPE;
+		attribute<IBIS>  type_rel                        := rlookup(WLOC_TYPE, IBIS/code);
+		attribute<IBIS>  type_per_grid (NL_grid/domain)  := type_rel[poly2grid(geometry, NL_grid/domain)];
+		attribute<m2>                         area := abs(area(geometry, m2));
+		attribute<ha>                         bruto := ha_bruto[ha];
+		attribute<ha>                         netto := ha_netto[ha];
+		attribute<ha>               uitgegeven                      := ha_uitgeg[ha];
+	}
+	unit<uint32> Y2017
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS_NL_2017.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	// ,  SyncMode = "None"
+	{
+		attribute<geometries/rdc>             geometry (poly);
+		attribute<string>                WLOC_TYPE;
+		unit<uint32> uq := unique(WLOC_TYPE);
+		attribute<IBIS>  type_rel                        := rlookup(WLOC_TYPE, IBIS/code);
+		attribute<IBIS>  type_per_grid (NL_grid/domain)  := type_rel[poly2grid(geometry, NL_grid/domain)];
+		attribute<m2>    area := abs(area(geometry, m2));
+		attribute<ha>                         bruto := ha_bruto[ha];
+		attribute<ha>                         netto := ha_netto[ha];
+		attribute<ha>               uitgegeven                      := ha_uitgeg[ha];
+	}
+	unit<uint32> Y2018
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS_NL_2018.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	// ,  SyncMode = "None"
+	{
+		attribute<geometries/rdc>             geometry (poly);
+		attribute<string>                WLOC_TYPE;
+		unit<uint32> uq := unique(WLOC_TYPE);
+		attribute<IBIS>  type_rel                        := rlookup(WLOC_TYPE, IBIS/code);
+		attribute<IBIS>  type_per_grid (NL_grid/domain)  := type_rel[poly2grid(geometry, NL_grid/domain)];
+		attribute<m2>    area := abs(area(geometry, m2));
+		attribute<ha>                         bruto := ha_bruto[ha];
+		attribute<ha>                         netto := ha_netto[ha];
+		attribute<ha>               uitgegeven                      := ha_uitgeg[ha];
+	}
+	unit<uint32> Y2019
+	:  StorageName = "%SourceDataDir%/IBIS/IBIS_NL_2019.shp"
+	,  StorageType = "gdal.vect"
+	,  StorageReadOnly = "True"
+	,  DialogType = "Map"
+	,  DialogData = "geometry"
+	,  FreeData = "False"
+	// ,  SyncMode = "None"
+	{
+		attribute<geometries/rdc>   geometry (poly);
+		attribute<string>           WLOC_TYPE;
+		unit<uint32>                uq                              := unique(WLOC_TYPE);
+		attribute<IBIS>             type_rel                        := rlookup(WLOC_TYPE, IBIS/code);
+		attribute<IBIS>             type_per_grid (NL_grid/domain)  := type_rel[poly2grid(geometry, NL_grid/domain)];
+		attribute<m2>               area                            := abs(area(geometry, m2));
+		attribute<ha>               bruto                           := ha_bruto[ha];
+		attribute<ha>               netto                           := ha_netto[ha];
+		attribute<ha>               uitgegeven                      := ha_uitgeg[ha];
+	}
+	
+	attribute<IBIS> Y2016_src  (NL_grid/domain) := Y2016/type_per_grid;
+	attribute<IBIS> Y2017_edit (NL_grid/domain) := Y2017/type_per_grid == IBIS/V/onbekend 
+																			? Y2016/type_per_grid 
+																			: Y2017/type_per_grid;
+	attribute<IBIS> Y2018_edit (NL_grid/domain) := Y2018/type_per_grid == IBIS/V/onbekend  
+																		? Y2017/type_per_grid == IBIS/V/onbekend 
+																			? Y2016/type_per_grid
+																			: Y2017/type_per_grid
+																		: Y2018/type_per_grid;
+	attribute<IBIS> Y2019_edit (NL_grid/domain) := Y2019/type_per_grid == IBIS/V/onbekend 
+																		? Y2018/type_per_grid == IBIS/V/onbekend  
+																			? Y2017/type_per_grid == IBIS/V/onbekend 
+																				? Y2016/type_per_grid
+																				: Y2017/type_per_grid
+																			: Y2018/type_per_grid
+																		: Y2019/type_per_grid;
+	
+	unit<uint32> IBIS_jaren : nrofrows = 12
+	{
+		attribute<uint32> value : [2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019];
+		attribute<string> name  := 'Y'+string(value);
+	}
+	
+	container AreaM2_PerJaar := 
+		for_each_nedv(
+			IBIS_jaren/name
+			, 'sum(Brondata/IBIS/'+IBIS_jaren/name+'/area, Brondata/IBIS/'+IBIS_jaren/name+'/type_rel)'
+			, typeringen/IBIS
+			, m2
+		);
+	container BrutoHa_PerJaar := 
+		for_each_nedv(
+			IBIS_jaren/name
+			, 'sum(Brondata/IBIS/'+IBIS_jaren/name+'/bruto[ha], Brondata/IBIS/'+IBIS_jaren/name+'/type_rel)'
+			, typeringen/IBIS
+			, ha
+		);
+	container NettoHa_PerJaar := 
+		for_each_nedv(
+			IBIS_jaren/name
+			, 'sum(Brondata/IBIS/'+IBIS_jaren/name+'/netto[ha], Brondata/IBIS/'+IBIS_jaren/name+'/type_rel)'
+			, typeringen/IBIS
+			, ha
+		);
+	container UitgegevenHa_PerJaar := 
+		for_each_nedv(
+			IBIS_jaren/name
+			, 'sum(Brondata/IBIS/'+IBIS_jaren/name+'/uitgegeven[ha], Brondata/IBIS/'+IBIS_jaren/name+'/type_rel)'
+			, typeringen/IBIS
+			, ha
+		);
+	
+}

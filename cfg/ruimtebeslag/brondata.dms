@@ -1,0 +1,651 @@
+container Brondata:  using = "eenheden;geometries;typeringen"
+{
+	#include <regios.dms>
+	#include <bag.dms>
+	#include <ibis.dms>
+	
+	unit<uint32> BBG
+	:  StorageName = "%SourceDataDir%/CBS/BestandBodemGebruik/BBG_1996_2015.fss"
+	,  DialogType = "Map"
+	,  DialogData = "geometry_rd"
+	,  StorageReadOnly = "True"
+	{
+		attribute<geometries/rdc>           geometry_rd (polygon);
+		attribute<m2>                       area     := area(geometry_rd, m2);
+		 
+
+		attribute<typeringen/bbg>           bbg2012;
+		attribute<typeringen/bbg>           bbg2015;
+		attribute<typeringen/bbg>           gg1996_src_rel;
+		attribute<typeringen/bbg>           gg2000_src_rel;
+		attribute<typeringen/bbg>           gg2003_src_rel;
+		attribute<typeringen/bbg>           gg2006_src_rel;
+		attribute<typeringen/bbg>           gg2008_src_rel;
+		attribute<typeringen/bbg>           gg2010_src_rel;
+		attribute<typeringen/bbg>           gg2012_src_rel;
+		attribute<typeringen/bbg>           gg2015_src_rel;
+		
+		attribute<typeringen/bbg/gg_10k>    bbg1996_10m_10k_src   (NL_grid/domain_10m) := typeringen/bbg/gg_10k_rel[per_10m/bbg1996_10m];
+		attribute<typeringen/bbg/gg_10k>    bbg1996_10m_10k       (NL_grid/domain_10m) := !IsDefined(bbg1996_10m_10k_src) ? typeringen/bbg/gg_10k/v/osa_ : bbg1996_10m_10k_src;
+		attribute<typeringen/bbg/gg_10k>    bbg2000_10m_10k_src   (NL_grid/domain_10m) := typeringen/bbg/gg_10k_rel[per_10m/bbg2000_10m];
+		attribute<typeringen/bbg/gg_10k>    bbg2000_10m_10k       (NL_grid/domain_10m) := !IsDefined(bbg2000_10m_10k_src) ? typeringen/bbg/gg_10k/v/osa_ : bbg2000_10m_10k_src;
+		attribute<typeringen/bbg/gg_10k>    bbg2012_10m_10k_src   (NL_grid/domain_10m) := typeringen/bbg/gg_10k_rel[per_10m/bbg2012_10m];
+		attribute<typeringen/bbg/gg_10k>    bbg2012_10m_10k       (NL_grid/domain_10m) := !IsDefined(bbg2012_10m_10k_src) ? typeringen/bbg/gg_10k/v/osa_ : bbg2012_10m_10k_src;
+		
+		attribute<typeringen/bbg/gg_12k>    bbg1996_10m_12k_src   (NL_grid/domain_10m) := typeringen/bbg/gg_12k_rel[per_10m/bbg1996_10m];
+		attribute<typeringen/bbg/gg_12k>    bbg1996_10m_12k       (NL_grid/domain_10m) := !IsDefined(bbg1996_10m_12k_src) ? typeringen/bbg/gg_12k/v/osa_ : bbg1996_10m_12k_src;
+		attribute<typeringen/bbg/gg_12k>    bbg2012_10m_12k_src   (NL_grid/domain_10m) := typeringen/bbg/gg_12k_rel[per_10m/bbg2012_10m];
+		attribute<typeringen/bbg/gg_12k>    bbg2012_10m_12k       (NL_grid/domain_10m) := !IsDefined(bbg2012_10m_12k_src) ? typeringen/bbg/gg_12k/v/osa_ : bbg2012_10m_12k_src;
+		
+		container Share_LU_type
+		{
+			container J1996 :=
+				for_each_nedv(
+					 typeringen/bbg/gg_12k/name
+					,'(sum(bbg1996_10m_12k == ' + string(typeringen/bbg/gg_12k/id) + '[typeringen/bbg/gg_12k] ? 1f : 0f, NL_grid/domain_10m/grid_100m_rel) / 100f)'
+					,NL_grid/domain
+					,float32
+				)
+			{
+					attribute<float32>   Total            (NL_grid/domain)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+					attribute<float32>   diversity        (NL_grid/domain)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+			}
+			container J2012 := 
+				for_each_nedv(
+					 typeringen/bbg/gg_12k/name
+					,'(sum(bbg2012_10m_12k == ' + string(typeringen/bbg/gg_12k/id) + '[typeringen/bbg/gg_12k] ? 1f : 0f, NL_grid/domain_10m/grid_100m_rel) / 100f)'
+					,NL_grid/domain
+					,float32
+				)
+			{
+					attribute<float32>   Total            (NL_grid/domain)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+					attribute<float32>   diversity        (NL_grid/domain)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+			}
+		}
+		
+		container Avg_shr_LUtype_neigh
+		{
+			container J1996 
+			{
+				container r100 := 
+					for_each_nedv(
+						 typeringen/bbg/gg_12k/name
+						,'potential(Share_LU_type/J1996/'+typeringen/bbg/gg_12k/name+', /geometries/potentialen/pot100m/potrange/neighbourhood) / sum(/geometries/potentialen/pot100m/potrange/neighbourhood)'
+						, NL_grid/domain
+						, float32
+					)
+				{
+						attribute<float32>   Total            (NL_grid/domain)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+						attribute<float32>   diversity        (NL_grid/domain)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+				}
+				container r1000 := 
+					for_each_nedv(
+						 typeringen/bbg/gg_12k/name
+						,'potential(Share_LU_type/J1996/'+typeringen/bbg/gg_12k/name+', /geometries/potentialen/pot1000m/potrange/neighbourhood) / sum(/geometries/potentialen/pot1000m/potrange/neighbourhood)'
+						, NL_grid/domain
+						, float32
+					)
+				{
+						attribute<float32>   Total            (NL_grid/domain)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+						attribute<float32>   diversity        (NL_grid/domain)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+				}
+			}
+			container J2012 
+			{
+				container r100 := 
+					for_each_nedv(
+						 typeringen/bbg/gg_12k/name
+						,'potential(Share_LU_type/J2012/'+typeringen/bbg/gg_12k/name+', /geometries/potentialen/pot100m/potrange/neighbourhood) / sum(/geometries/potentialen/pot100m/potrange/neighbourhood)'
+						, NL_grid/domain
+						, float32
+					)
+				{
+						attribute<float32>   Total            (NL_grid/domain)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+						attribute<float32>   diversity        (NL_grid/domain)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+				}
+				container r1000 := 
+					for_each_nedv(
+						 typeringen/bbg/gg_12k/name
+						,'potential(Share_LU_type/J2012/'+typeringen/bbg/gg_12k/name+', /geometries/potentialen/pot1000m/potrange/neighbourhood) / sum(/geometries/potentialen/pot1000m/potrange/neighbourhood)'
+						, NL_grid/domain
+						, float32
+					)
+				{
+						attribute<float32>   Total            (NL_grid/domain)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+						attribute<float32>   diversity        (NL_grid/domain)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+				}
+			}
+		}
+		
+		container InRBG_klassen := 
+			for_each_nedv(
+				typeringen/BBG_jaren/name
+				, 'typeringen/bbg/gg_RuimtebeslagRapport_rel[gg'+string(typeringen/BBG_jaren/values)+'_src_rel]'
+				, BBG
+				, typeringen/bbg/gg_RuimtebeslagRapport
+			);
+			
+		
+		container IsVerblijfsRecreatieSub := 
+			for_each_ne(
+				/typeringen/BBG_jaren/name
+				, 'IsVerblijfsRecreatieSub_T('+quote(/typeringen/BBG_jaren/name)+',string('+string(typeringen/BBG_jaren/values)+'))'
+			)
+		{
+			unit<uint32> union_jaren := ='union_unit('+AsItemList(typeringen/BBG_jaren/name+'/IsVerblijfsRecreatieSub')+')'
+			
+			{
+				attribute<geometries/rdc>    geometry_rd (poly) := ='union_data(.,'+AsItemList(typeringen/BBG_jaren/name+'/IsVerblijfsRecreatieSub/geometry')+')';
+				parameter<geometries/rdc_mm> union   (poly)     := union_polygon(geometry_rd[geometries/rdc_mm]);
+				
+				unit<uint32> export_zonder_buffer := union_jaren
+				, StorageName = "%LocalDataDir%/RuimteBeslag/Verblijfsrecreatie_Period.fss"
+				{
+					attribute<geometries/rdc>    geometry_rd (poly) :=../geometry_rd;
+				}
+				
+				unit<uint32> unioned_unit_1 : nrofrows = 1
+				{
+					attribute<geometries/rdc_mm> geometry_mm (poly) := union_data(., ../union);
+				}
+				
+				unit<uint32> single2multi_1 := split_polygon(unioned_unit_1/geometry_mm)
+				{
+					attribute<geometries/rdc_mm> inflate (poly) := polygon_i4D(geometry,  100000d), DisableStorage = "true";
+					parameter<geometries/rdc_mm> union   (poly) := union_polygon(inflate);
+				}
+				
+				unit<uint32> unioned_unit_2 : nrofrows = 1
+				{
+					attribute<geometries/rdc_mm> geometry_mm (poly) := union_data(., single2multi_1/union);
+				}
+				
+				unit<uint32> single2multi_2 := split_polygon(unioned_unit_2/geometry_mm)
+				, StorageName = "%LocalDataDir%/RuimteBeslag/VerblijfsrecreatieBuffer_Period.fss"
+				{
+					attribute<geometries/rdc>    geometry_rd (poly) := geometry[geometries/rdc];
+				}
+				unit<uint32> Read_single2multi_2
+				: StorageName = "%LocalDataDir%/RuimteBeslag/VerblijfsrecreatieBuffer_Period.fss"
+				, StorageReadOnly = "true"
+				{
+					attribute<geometries/rdc>    geometry_rd (poly);
+					attribute<.>                 per_grid       (NL_grid/domain)     := poly2grid(geometry_rd, NL_grid/domain);
+					attribute<bool>              bool           (NL_grid/domain)     := IsDefined(per_grid);
+				}
+			}
+		}
+			
+			
+			
+		Template IsVerblijfsRecreatieSub_T
+		{
+			parameter<string> year_name;
+			parameter<string> year;
+			
+			unit<uint32> IsVerblijfsRecreatieSub := ='subset(gg'+year+'_src_rel == typeringen/bbg/V/verblijfsrecreatie)'
+			{
+				attribute<geometries/rdc>           geometry (poly) := BBG/geometry_rd[nr_OrgEntity];
+				
+				// attribute<.> logies_rel    (Analyse/Verblijfsrecreatie/union_logies_vbos)    := point_in_polygon(/Analyse/Verblijfsrecreatie/union_logies_vbos/Geometry, geometry);
+				
+				attribute<bool> HasLogies := IsDefined(rlookup(id(.), point_in_polygon(/Analyse/Verblijfsrecreatie/union_logies_vbos/Geometry, geometry)));
+			}
+		}
+		
+		unit<uint32> IsVerblijfsRecreatieSub1996 := subset(gg1996_src_rel == typeringen/bbg/V/verblijfsrecreatie)
+		{
+			attribute<geometries/rdc>           geometry_rd (poly) := ../geometry_rd[nr_OrgEntity];
+			attribute<.>                        per_grid       (NL_grid/domain)     := poly2grid(geometry_rd, NL_grid/domain);
+			attribute<bool>                     bool           (NL_grid/domain)     := IsDefined(per_grid);
+			parameter<geometries/rdc_mm>        union   (poly)     := union_polygon(geometry_rd[geometries/rdc_mm]);
+			
+			unit<uint32> unioned_unit_1 : nrofrows = 1
+			{
+				attribute<geometries/rdc_mm> geometry_mm (poly) := union_data(., ../union);
+			}
+			
+			unit<uint32> single2multi_1 := split_polygon(unioned_unit_1/geometry_mm)
+			{
+				attribute<geometries/rdc_mm> inflate (poly) := polygon_i4D(geometry,  100000d), DisableStorage = "true";
+				parameter<geometries/rdc_mm> union   (poly) := union_polygon(inflate);
+			}
+			
+			unit<uint32> unioned_unit_2 : nrofrows = 1
+			{
+				attribute<geometries/rdc_mm> geometry_mm (poly) := union_data(., single2multi_1/union);
+			}
+			
+			unit<uint32> single2multi_2 := split_polygon(unioned_unit_2/geometry_mm)
+			, StorageName = "%LocalDataDir%/RuimteBeslag/VerblijfsrecreatieBuffer_1996.fss"
+			{
+				attribute<geometries/rdc>    geometry_rd (poly) := geometry[geometries/rdc];
+			}
+			unit<uint32> Read_single2multi_2
+			: StorageName = "%LocalDataDir%/RuimteBeslag/VerblijfsrecreatieBuffer_1996.fss"
+			, StorageReadOnly = "true"
+			{
+				attribute<geometries/rdc>    geometry_rd (poly);
+				attribute<.>                 per_grid       (NL_grid/domain)     := poly2grid(geometry_rd, NL_grid/domain);
+				attribute<bool>              bool           (NL_grid/domain)     := IsDefined(per_grid);
+			}
+		}
+		unit<uint32> IsVerblijfsRecreatieSub2015 := subset(gg2015_src_rel == typeringen/bbg/V/verblijfsrecreatie)
+		{
+			attribute<geometries/rdc>           geometry_rd (poly) := ../geometry_rd[nr_OrgEntity];
+			attribute<.>                        per_grid (NL_grid/domain)     := poly2grid(geometry_rd, NL_grid/domain);
+			attribute<bool>                     bool           (NL_grid/domain)     := IsDefined(per_grid);
+			parameter<geometries/rdc_mm>        union   (poly)     := union_polygon(geometry_rd[geometries/rdc_mm]);
+			
+			unit<uint32> unioned_unit_1 : nrofrows = 1
+			{
+				attribute<geometries/rdc_mm> geometry_mm (poly) := union_data(., ../union);
+			}
+			
+			unit<uint32> single2multi_1 := split_polygon(unioned_unit_1/geometry_mm)
+			{
+				attribute<geometries/rdc_mm> inflate (poly) := polygon_i4D(geometry,  100000d), DisableStorage = "true";
+				parameter<geometries/rdc_mm> union   (poly) := union_polygon(inflate);
+			}
+			
+			unit<uint32> unioned_unit_2 : nrofrows = 1
+			{
+				attribute<geometries/rdc_mm> geometry_mm (poly) := union_data(., single2multi_1/union);
+			}
+			
+			unit<uint32> single2multi_2 := split_polygon(unioned_unit_2/geometry_mm)
+			, StorageName = "%LocalDataDir%/RuimteBeslag/VerblijfsrecreatieBuffer_2015.fss"
+			{
+				attribute<geometries/rdc>    geometry_rd (poly) := geometry[geometries/rdc];
+			}
+			unit<uint32> Read_single2multi_2
+			: StorageName = "%LocalDataDir%/RuimteBeslag/VerblijfsrecreatieBuffer_2015.fss"
+			, StorageReadOnly = "true"
+			{
+				attribute<geometries/rdc>    geometry_rd (poly);
+				attribute<.>                 per_grid       (NL_grid/domain)     := poly2grid(geometry_rd, NL_grid/domain);
+				attribute<bool>              bool           (NL_grid/domain)     := IsDefined(per_grid);
+			}
+		}
+		
+		
+		// attribute<ha> Area_2015 := ='union_data(typeringen/BBG,'+AsItemList('MakePerFunctie/'+typeringen/BBG/name+'/area')+')';
+		
+		container Area_perFunctie_perJaar :=
+			for_each_nedv(
+				typeringen/bbg/name
+				, replace('union_data(typeringen/BBG_jaren, '+AsItemList('MakePerFunctie/@TYPE@/AreaPerJaar/'+typeringen/BBG_jaren/name+'')+')','@TYPE@', typeringen/bbg/name)
+				, typeringen/BBG_jaren
+				, ha
+			);
+
+		container Make_per_10m
+		{
+			attribute<BBG>                                         CBS1996_2015_10mtr (NL_grid/domain_10m) := poly2grid(geometry_rd, NL_grid/domain_10m);
+			attribute<typeringen/bbg>                              CBSKlasse_rel_1996 (NL_grid/domain_10m) := gg1996_src_rel[CBS1996_2015_10mtr], StorageName = "%LocalDataDir%/Ruimtebeslag/BBG/bbg1996_10m.fss";
+			attribute<typeringen/bbg>                              CBSKlasse_rel_2000 (NL_grid/domain_10m) := gg2000_src_rel[CBS1996_2015_10mtr], StorageName = "%LocalDataDir%/Ruimtebeslag/BBG/bbg2000_10m.fss";
+			attribute<typeringen/bbg>                              CBSKlasse_rel_2012 (NL_grid/domain_10m) := gg2012_src_rel[CBS1996_2015_10mtr], StorageName = "%LocalDataDir%/Ruimtebeslag/BBG/bbg2012_10m.fss";
+			attribute<typeringen/bbg>                              CBSKlasse_rel_2015 (NL_grid/domain_10m) := gg2015_src_rel[CBS1996_2015_10mtr], StorageName = "%LocalDataDir%/Ruimtebeslag/BBG/bbg2015_10m.fss";
+		}
+			
+		container per_10m
+		{
+		 attribute<typeringen/bbg>                               bbg1996_10m (NL_grid/domain_10m) : StorageName = "%LocalDataDir%/Ruimtebeslag/BBG/bbg1996_10m.fss", StorageReadOnly = "true";
+		 attribute<typeringen/bbg>                               bbg2000_10m (NL_grid/domain_10m) : StorageName = "%LocalDataDir%/Ruimtebeslag/BBG/bbg2000_10m.fss", StorageReadOnly = "true";
+		 attribute<typeringen/bbg>                               bbg2012_10m (NL_grid/domain_10m) : StorageName = "%LocalDataDir%/Ruimtebeslag/BBG/bbg2012_10m.fss", StorageReadOnly = "true";
+		 attribute<typeringen/bbg>                               bbg2015_10m (NL_grid/domain_10m) : StorageName = "%LocalDataDir%/Ruimtebeslag/BBG/bbg2015_10m.fss", StorageReadOnly = "true";
+		}
+		
+		container PerFunctie
+		{
+			container J1996 := 
+				for_each_ndva(
+					typeringen/bbg/name
+					, NL_grid/domain_10m
+					, bool
+					, '%ProjDir%/Data/UnlinkedData/BBG/bbg1996_'+typeringen/bbg/name+'.fss'
+			);
+			container J2015 := 
+				for_each_ndva(
+					typeringen/bbg/name
+					, NL_grid/domain_10m
+					, bool
+					, '%ProjDir%/Data/UnlinkedData/BBG/bbg2015_'+typeringen/bbg/name+'.fss'
+			);
+		}
+		
+		container MakePerFunctie := 
+			for_each_ne(
+				typeringen/bbg/name
+				, 'MakePerFunctieT('+quote(typeringen/bbg/name)+')'
+			)
+		{
+			parameter<String> Generate_1996 := 'Ready',
+				ExplicitSuppliers = "=AsList('MakePerFunctie/'+typeringen/bbg/name+'/PerJaar/Y1996',';')";
+			parameter<String> Generate_2015 := 'Ready',
+				ExplicitSuppliers = "=AsList('MakePerFunctie/'+typeringen/bbg/name+'/PerJaar/Y2015',';')";
+		}
+		
+		template MakePerFunctieT
+		{
+			parameter<string> Name;
+			
+			parameter<ha> Area := ='sum(gg2015_src_rel == typeringen/bbg/V/'+Name+' ? area(geometry_rd, ha) : 0[ha])';
+			unit<uint32> sub := = 'subset(gg2015_src_rel == typeringen/bbg/V/'+Name+')'
+			{
+				attribute<geometries/rdc>      geometry_rd (polygon) := BBG/geometry_rd[nr_OrgEntity];
+				attribute<m2>                  area                  := area(geometry_rd, m2);
+			}
+
+			container PerJaar :=
+				for_each_nedva(
+					typeringen/BBG/BBG_jaren/name
+					,'per_10m/bbg'+string(typeringen/BBG/BBG_jaren/values)+'_10m == typeringen/bbg/V/'+Name+' ? IsDefined(per_10m/bbg'+string(typeringen/BBG/BBG_jaren/values)+'_10m) : FALSE'
+					, NL_grid/domain_10m
+					, bool
+					, '%ProjDir%/Data/UnlinkedData/BBG/bbg'+string(typeringen/BBG/BBG_jaren/values)+'_'+Name+'.fss'
+				);
+				
+			container AreaPerJaar :=
+				for_each_nedv(
+					typeringen/BBG_jaren/name
+					,'sum(gg'+string(typeringen/BBG_jaren/values)+'_src_rel == typeringen/bbg/V/'+Name+' ? area(geometry_rd, ha) : 0[ha])'
+					, void
+					, ha
+				);
+		}
+	}	
+
+	
+	container SpatialVars
+	{
+		attribute<m> DistTo_Airports_2019_Top5_BRT_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_Airports_2019_Top5_BRT.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<m> DistTo_highway_acces_exit_2018_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_highway_acces_exit_2018.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<m> DistTo_Zeehavens2019_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_Zeehaven_2019.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<km> DistTo_Trainstations_km_2019 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_Trainstations_km_2019.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<s> Reistijd100kInw_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/Reistijd100kInw.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> UAI_2018 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/UAI_2018.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<eur_m2> Hedonic_landprice_2007 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/Hedonic_landprice_2007.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<m> DistTo_Urban_Contour_2000_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_Urban_Contour_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<uint32> Vinex_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/VinexPlans.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<uint32> Natura2000_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/IsNatura2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True"
+		{
+		
+		}
+		attribute<uint32> Bundelingsgebieden_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/nationaal_bundelingsgebied_def_juni09.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		
+		unit<uint32> Natura2000_v2020
+		:  StorageName = "%SourceDataDir%/SpatialData/Natura2000_end2020_epsg3035.shp"
+		,  StorageType = "gdal.vect"
+		,	StorageReadOnly = "True"
+		, DialogData = "geometry_rd"
+		, DialogType = "map"
+		, SyncMode = "none"
+		{
+			attribute<LambertEA>  geometry (poly);
+			attribute<rdc>        geometry_rd (poly) := geometry[rdc];
+			attribute<bool>       IsNL               := rjoin(id(.), seq2points/SequenceNr, seq2points/IsNL);
+			
+			unit<uint32> seq2points := sequence2points(geometry_rd)
+			{
+				attribute<float32> x := pointcol(point);
+				attribute<float32> y := pointrow(point);
+				
+				attribute<bool>    IsNL := x >= x_min && x <= x_max && y >= y_min && y <= y_max;
+				
+				parameter<m> x_min  := /Brondata/regios/nederland/NL_BoundingBox/x_min;
+				parameter<m> x_max  := /Brondata/regios/nederland/NL_BoundingBox/x_max;
+				parameter<m> y_min  := /Brondata/regios/nederland/NL_BoundingBox/y_min;
+				parameter<m> y_max  := /Brondata/regios/nederland/NL_BoundingBox/y_max;
+			}
+			// attribute<.>               per_grid (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			
+
+			// Linkonder   = xmin/ymin
+			// rechtsonder = xmax/ymin
+			
+			// parameter<m> x_min  := 0[m];
+			// parameter<m> x_max  := 280000[m]; 
+			// parameter<m> y_min  := 300000[m];
+			// parameter<m> y_max  := 625000[m];
+
+			
+			// attribute<bool>          IsNL := IsDefined(point_in_polygon(centroid_or_mid(geometry_rd), /Brondata/regios/nederland/NL_BoundingBox/polygon));
+			
+			unit<uint32> NL := subset(IsNL)
+			{
+				attribute<rdc>        geometry (poly) := ../geometry_rd[nr_OrgEntity];
+				
+				container DistanceTo
+				{
+					unit<uint32>      segments                    := arc2segm(../geometry);
+					unit<uint32>      pointset                    := dyna_point(segments/point, segments/nextpoint, value(100, m)), DialogType = "Map", DialogData = "point"
+					{
+						attribute<NL_grid/domain> grid_rel        := point[NL_grid/domain];
+					}
+					attribute<m>      DistTo (NL_grid/domain)     := GridDist(resistance, pointset/grid_rel, const(0, pointset, m));
+					attribute<m>      resistance (NL_grid/domain) := const(100,NL_grid/domain,m);
+				}
+			}
+		}
+		
+		unit<uint32> Bufferzones_2005_src
+		:  StorageName = "%SourceDataDir%/RuimteBeslag/bufferzones_2005.shp"
+		,  StorageType = "gdal.vect"
+		,	StorageReadOnly = "True"
+		{
+			attribute<geometries/rdc>  geometry (poly);
+			attribute<.>               per_grid (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+		}
+		unit<uint32> EHS_1990_src
+		:  StorageName = "%SourceDataDir%/RuimteBeslag/EHS1990.shp"
+		,  StorageType = "gdal.vect"
+		,	StorageReadOnly = "True"
+		{
+			attribute<geometries/rdc>  geometry (poly);
+			attribute<.>               per_grid (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			
+			container DistanceTo
+			{
+				unit<uint32>      segments                    := arc2segm(../geometry);
+				unit<uint32>      pointset                    := dyna_point(segments/point, segments/nextpoint, value(100, m)), DialogType = "Map", DialogData = "point"
+				{
+					attribute<NL_grid/domain> grid_rel        := point[NL_grid/domain];
+				}
+				attribute<m>      DistTo (NL_grid/domain)     := GridDist(resistance, pointset/grid_rel, const(0, pointset, m));
+				attribute<m>      resistance (NL_grid/domain) := const(100,NL_grid/domain,m);
+			}
+		}
+		
+		unit<uint32> GroeneHart_2004_src
+		:  StorageName = "%SourceDataDir%/RuimteBeslag/Gh_2004.shp"
+		,  StorageType = "gdal.vect"
+		,	StorageReadOnly = "True"
+		{
+			attribute<geometries/rdc>  geometry (poly);
+			attribute<.>               per_grid (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			
+			container DistanceTo
+			{
+				unit<uint32>      segments                    := arc2segm(../geometry);
+				unit<uint32>      pointset                    := dyna_point(segments/point, segments/nextpoint, value(100, m)), DialogType = "Map", DialogData = "point"
+				{
+					attribute<NL_grid/domain> grid_rel        := point[NL_grid/domain];
+				}
+				attribute<m>      DistTo (NL_grid/domain)     := GridDist(resistance, pointset/grid_rel, const(0, pointset, m));
+				attribute<m>      resistance (NL_grid/domain) := const(100,NL_grid/domain,m);
+			}
+		}
+		
+		attribute<float32> LU_share_agriculture_2000 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_agriculture_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_share_construction_2000 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_construction_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_share_infrastructure_2000 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_infrastructure_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_share_nature_2000 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_nature_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_share_otherbuiltup_2000 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_otherbuiltup_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_share_residential_2000 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_residential_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_share_urbangreen_2000 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_urbangreen_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_share_water_2000 (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_water_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_simpson_diversity_index_2000_src (NL_grid/domain)
+		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_simpson_diversity_index_2000.tif"
+		,	StorageType     = "gdal.grid"
+		,	StorageReadOnly = "True";
+		attribute<float32> LU_simpson_diversity_index_2000 (NL_grid/domain) := 1f - LU_simpson_diversity_index_2000_src;
+		
+		attribute<km>         DistTo_Airports_2019          (NL_grid/domain) := convert(DistTo_Airports_2019_Top5_BRT_src, km);
+		attribute<km>         DistTo_Highway_acces_exit_2018 (NL_grid/domain) := convert(DistTo_highway_acces_exit_2018_src, km);
+		attribute<km>         DistTo_Zeehavens_2019         (NL_grid/domain) := convert(DistTo_Zeehavens2019_src, km);
+		attribute<km>         DistTo_Urban_Contour_2000     (NL_grid/domain) := convert(DistTo_Urban_Contour_2000_src, km);
+		attribute<km>         DistTo_GroeneHart_2004        (NL_grid/domain) := convert(GroeneHart_2004_src/DistanceTo/DistTo, km);
+		attribute<km>         DistTo_EHS_1990               (NL_grid/domain) := convert(EHS_1990_src/DistanceTo/DistTo, km);   
+		attribute<km>         DistTo_Natura2000_2020        (NL_grid/domain) := convert(Natura2000_v2020/NL/DistanceTo/DistTo, km);
+		attribute<min>        tt_100kinhab_min_2017_0       (NL_grid/domain) := convert(MakeDefined(Reistijd100kInw_src, max(Reistijd100kInw_src)), min) > 120[min] ? 120[min] : convert(MakeDefined(Reistijd100kInw_src, max(Reistijd100kInw_src)), min);
+		attribute<min>        tt_100kinhab_min_2017         (NL_grid/domain) := tt_100kinhab_min_2017_0 < 1[min] ? 1[min] :  tt_100kinhab_min_2017_0;
+		attribute<uint32>     Vinex                         (NL_grid/domain) := MakeDefined(Vinex_src, 0);
+		attribute<uint32>     Natura2000                    (NL_grid/domain) := MakeDefined(Natura2000_src, 0);
+		attribute<uint32>     Bundelingsgebieden            (NL_grid/domain) := MakeDefined(Bundelingsgebieden_src, 0);
+		attribute<uint32>     Bufferzones_2005              (NL_grid/domain) := IsDefined(Bufferzones_2005_src/per_grid) ? 1 : 0;
+		attribute<uint32>     EHS_1990                      (NL_grid/domain) := MakeDefined(EHS_1990_src/per_grid > 1 ? 1 : 0, 0);
+		attribute<uint32>     GroeneHart_2004               (NL_grid/domain) := IsDefined(GroeneHart_2004_src/per_grid) ? 1 : 0;
+	}
+	
+	
+	container LISA
+	{
+		unit<uint32>  RegioUnit_prov  := BronData/regios/provincies/src_2012;
+		unit<uint32>  RegioUnit_NL  := /Brondata/regios/nederland/src;
+		unit<uint32> jaren := range(uint32, 1996, 2019)
+		{
+			attribute<string> label   := name , DialogType = "LabelText";
+			attribute<string> name    := 'Y' + string(id(.));
+			attribute<uint32> value   := id(.);
+		}
+		
+		container TXLJobs7_totals :=
+			for_each_nedv(
+				TXLJobs7/name
+				, replace('union_data(jaren, '+AsItemList('PerJaar/'+jaren/name+'/PerYear/TXLJobs7_totals/@TXL@')+')','@TXL@', TXLJobs7/name)
+				, jaren
+				, int32
+			);
+			
+		container PerJaar := 
+			for_each_ne(
+				Jaren/name
+				,'ReadFSS_T('+string(Jaren/value)+')'
+			);
+		
+		Template ReadFSS_T
+		{	
+			parameter<uint32> year;
+			
+			unit<uint32> BAG_Pand := ='Brondata/BAG/Snapshots/Panden/Y'+string(year)+'/pand';
+			
+			unit<uint32> PerYear
+			: StorageName = "='%LocalDataDir%/NLDB/LISA/LISA'+string(year)+'.fss'"
+			, StorageReadOnly = "true"
+			, DialogType = "map"
+			, DialogData = "geometry"
+			{
+				attribute<rdc>                      geometry;
+				attribute<float64>                        banen;
+				attribute<string>                         LISAnr;
+				attribute<string>                         naam;
+				attribute<string>                         postcode;
+				attribute<uint32>                         huisnummer;
+				attribute<string>                         plaats;
+				attribute<string>                         GRTKLAS;
+				attribute<string>                         BAGGDVO;
+				attribute<float32>                        BAG_opp;
+				attribute<string>                         sbi08;
+				
+				attribute<TXLJobs7>                 TXLJobs7_rel        := rjoin(SBI08, Typeringen/SBI08/SBI2008, Typeringen/SBI08/TXLJobs7_rel); 
+				attribute<TXLJobs7_nodata>          TXLJobs7_nodata_rel := rjoin(TXLJobs7_rel, TXLJobs7_nodata/TXLJobs7_rel, id(TXLJobs7_nodata)); 
+				attribute<RegioUnit_prov>           Prov_rel            := point_in_polygon(geometry, RegioUnit_prov/geometry);
+				attribute<RegioUnit_nl>             NL_rel              := point_in_polygon(geometry, RegioUnit_nl/geometry);
+				attribute<BAG_Pand>                 Pand_rel            := point_in_polygon(geometry, BAG_Pand/Geometry);
+				
+				container TXLJobs7_totals :=
+					for_each_nedv(
+						TXLJobs7/name
+						, 'sum(int32(banen) * int32(TXLJobs7_rel == '+string(id(TXLJobs7))+'[TXLJobs7]))'
+						, void
+						, int32
+					);
+			}
+		}
+	}
+	container Omgeving
+	{
+		container BelevingLandschap //let op dit is het orgineel 250 * 250 mtr
+		{
+			attribute<Float32> Src (NL_grid/domain)
+			:	Label       = "Belevingskaart van het Nederlandse landschap"
+			,	Source      = "Y:\data\Indibase\clo\w_nl_1\2_productie\kaart\1023_001k_clo\data\bwmbel1km1"
+							  "conversie in ArcGIS 10.3.1. naar tif-formaat met -9999 als missing value"
+			,	url         = "https://www.clo.nl/indicatoren/nl1023-belevingskaart-van-het-nederlandse-landschap"
+			,	StorageName = "%SourceDataDir%/RuimteBeslag/Belevingkaart_van_het_Nederlandse_Landschap_2006.tif";
+			
+			attribute<float32> NoMissing (NL_grid/domain) := Src == -9999[float32] ? (0/0)[float32] : Src;
+			attribute<float32> NoMissing2(NL_grid/domain) := Src == -9999[float32] ? min(NoMissing)-1f : Src;
+			attribute<float32> Inverse   (NL_grid/domain):= max(NoMissing) - NoMissing;
+		}
+	}
+	
+}

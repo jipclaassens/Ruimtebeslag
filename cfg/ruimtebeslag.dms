@@ -1,0 +1,153 @@
+container Ruimtebeslag
+{ 
+	#include <eenheden.dms>
+	#include <typeringen.dms>
+	
+	container geometries: isHidden = "True", DialogType = "ishidden"
+	{
+		unit<fpoint> rdc_base
+		:	Format     = "EPSG:28992"
+		, 	DialogData = "ngr_layer"; // wms achtergrondlaag voor kaarten met rd coordinaten
+		unit<fpoint> rdc     := range(rdc_base, point(0f,300000f), point(280000f,625000f));
+		unit<ipoint> rdc_mm := gridset(rdc, point(0.001,0.001), point(0.0, 0.0), ipoint);
+		
+		unit<dpoint> LambertEA: Descr = "ETRS_1989_LAEA_52N_10E" // "coords from SW to NE";
+		, Format = "EPSG:3035"; // EPSG code for Lambert EA
+		
+		#include <ngr_layer.dms>
+		
+		container potentialen: using = "eenheden"
+		{
+			unit<uint32> Dist2Range;
+			
+			container pot100m   := potrange(100[m], 100[m]);
+			container pot1000m   := potrange(100[m], 1000[m]);
+
+			Template potrange
+			{
+				parameter<m>       gridgrootte;
+				parameter<m>       afkapstraal;
+				parameter<float32> straal                 := afkapstraal / gridgrootte;
+				unit<spoint>       potRange               := range(spoint, point(-straal[int16], -straal[int16]), point(straal[int16] + 1s, straal[int16] + 1s))
+				{
+					attribute<Dist2Range> distMatr        := dist2(point(0s, 0s, potRange), Dist2Range);
+					attribute<float32> distMatr_f         := distMatr[float32];
+					attribute<float32> AbsWeight          := distMatr[float32] <= (straal * straal) ? 1f / (distMatr[float32] ^ 2f) : 0f;
+					attribute<float32> RelWeightSqrt      := AbsWeight / Sum(AbsWeight);
+					attribute<float32> binair             := distMatr <= 100 ? 1f : 0f;
+					attribute<float32> neighbourhood      := distMatr > 0 ? 1f : 0f;
+					attribute<float32> dist         := sqrt(float32(distMatr));
+					attribute<float32> rev_dist     := max_elem(straal - dist, 0f);
+					parameter<float32> rev_dist_max := max(rev_dist);
+					attribute<float32> rev_dist_scaled := rev_dist / rev_dist_max;
+				}
+			}
+		}
+	}
+	
+	container NL_grid: isHidden = "True", Using = "Eenheden;geometries"
+	{
+		parameter<m> gridsize := 100[m];
+		parameter<m> gridsize_10m := 10[m];
+		parameter<m> gridsize_20m := 20[m];
+		parameter<m> gridsize_25m := 25[m];
+		parameter<m> gridsize_500m := 500[m];
+		
+		parameter<m> x_min := 0[m];
+		parameter<m> x_max := 280000[m];
+		parameter<m> y_min := 300000[m];
+		parameter<m> y_max := 625000[m];
+		
+		// parameter<m> x_min := 100000[m];
+		// parameter<m> x_max := 150000[m];
+		// parameter<m> y_min := 500000[m];
+		// parameter<m> y_max := 550000[m];
+
+		parameter<int16> nr_cols := int16((x_max - x_min) / gridsize);
+		parameter<int16> nr_rows := int16((y_max - y_min) / gridsize);
+
+		unit<spoint> domain :=
+			range(
+				 gridset(
+					 rdc
+					,point(gridsize, -gridsize, geometries/rdc)
+					,point(x_min, y_max, geometries/rdc)
+					,spoint
+				)
+				,point(0s, 0s)
+				,point(nr_cols, nr_rows)
+			)
+		,	DialogData = "geometries/rdc"
+		{
+			attribute<geometries/rdc>  point_rd      := id(.)[geometries/rdc] + point(0.5f * gridsize, -0.5f * gridsize, geometries/rdc);
+			attribute<.>      id   := id(.);
+			parameter<uint32>          max_col_value := max(pointcol(id(.)))[uint32] + 1;
+			attribute<uint32>          identificatie := (pointcol(id(.))[uint32] + 1) + ((pointrow(id(.))[uint32]) * max_col_value);
+			attribute<bool>   IsNederland   := IsDefined(/Brondata/regios/Buurten/src_2019/IsLand/grid);
+		}
+		
+		/////
+		parameter<int16> nr_cols_10m := int16((x_max - x_min) / gridsize_10m);
+		parameter<int16> nr_rows_10m := int16((y_max - y_min) / gridsize_10m);
+		
+		unit<spoint> domain_10m_untiled :=
+			range(
+				 gridset(
+					 geometries/rdc
+					,point(gridsize_10m, -gridsize_10m, geometries/rdc)
+					,point(x_min, y_max, geometries/rdc)
+					,spoint
+				)
+				,point(0s, 0s)
+				,point(nr_cols_10m, nr_rows_10m)
+			)
+		,	DialogData = "geometries/rdc"
+		{
+			attribute<domain>      grid_100m_rel    := id(.)[domain];
+		}
+
+		unit<spoint> domain_10m := TiledUnit(Point(1000s, 1200s, domain_10m_untiled))
+		{
+			attribute<domain>      grid_100m_rel    := id(.)[domain];
+		}
+		///////
+		parameter<int16> nr_cols_20m := int16((x_max - x_min) / gridsize_20m);
+		parameter<int16> nr_rows_20m := int16((y_max - y_min) / gridsize_20m);
+		
+		unit<spoint> domain_20m_untiled :=
+			range(
+				 gridset(
+					 geometries/rdc
+					,point(gridsize_20m, -gridsize_20m, geometries/rdc)
+					,point(x_min, y_max, geometries/rdc)
+					,spoint
+				)
+				,point(0s, 0s)
+				,point(nr_cols_20m, nr_rows_20m)
+			)
+		,	DialogData = "geometries/rdc"
+		{
+			attribute<domain>      grid_100m_rel    := id(.)[domain];
+		}
+
+		unit<spoint> domain_20m := TiledUnit(Point(1000s, 1200s, domain_20m_untiled))
+		{
+			attribute<domain>      grid_100m_rel    := id(.)[domain];
+		}
+		///////
+		
+		unit<uint32> points := Subset(domain/IsNederland)
+		{
+			attribute<geometries/rdc> 	geometry  := domain/point_rd[nr_OrgEntity];	
+			attribute<uint32>           id        := domain/identificatie[nr_OrgEntity];
+			
+			attribute<float32>          x         := PointCol(geometry);
+			attribute<float32>          y         := PointRow(geometry);
+			
+			attribute<NL_grid/domain>   NL_grid_domain_rel  := geometry[NL_grid/domain];	
+		}
+	}
+
+	#include <brondata.dms>
+	#include <analyse.dms>
+}
