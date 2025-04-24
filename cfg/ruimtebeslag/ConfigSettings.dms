@@ -1,0 +1,11 @@
+container ConfigSettings
+{
+	container Overridable
+	{
+		parameter<String> RSo_DataDir := '%sourceDataDir%/RSopen';
+		parameter<String> RSL_DataDir := 'D:/SourceData/RSL';
+		parameter<String> RVF_DataDir := '%sourceDataDir%/RS_Friesland';
+		parameter<String> PrivDataDir := '%sourceDataDir%/RSOpen_Priv';
+		parameter<String> AltSourceDataDir := 'D:/SourceData';
+	}
+}

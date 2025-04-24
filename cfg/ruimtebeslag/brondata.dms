@@ -5,7 +5,7 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 	#include <ibis.dms>
 	
 	unit<uint32> BBG
-	:  StorageName = "%SourceDataDir%/CBS/BestandBodemGebruik/BBG_1996_2015.fss"
+	:  StorageName = "%AltSourceDataDir%/CBS/BestandBodemGebruik/BBG_1996_2015.fss"
 	,  DialogType = "Map"
 	,  DialogData = "geometry_rd"
 	,  StorageReadOnly = "True"
@@ -360,50 +360,50 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 	container SpatialVars
 	{
 		attribute<m> DistTo_Airports_2019_Top5_BRT_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_Airports_2019_Top5_BRT.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/DistTo_Airports_2019_Top5_BRT.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<m> DistTo_highway_acces_exit_2018_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_highway_acces_exit_2018.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/DistTo_highway_acces_exit_2018.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<m> DistTo_Zeehavens2019_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_Zeehaven_2019.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/DistTo_Zeehaven_2019.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<km> DistTo_Trainstations_km_2019 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_Trainstations_km_2019.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/DistTo_Trainstations_km_2019.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<s> Reistijd100kInw_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/Reistijd100kInw.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/Reistijd100kInw.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> UAI_2018 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/UAI_2018.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/UAI_2018.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<eur_m2> Hedonic_landprice_2007 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/Hedonic_landprice_2007.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/Hedonic_landprice_2007.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<m> DistTo_Urban_Contour_2000_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/DistTo_Urban_Contour_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/DistTo_Urban_Contour_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<uint32> Vinex_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/VinexPlans.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/VinexPlans.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<uint32> Natura2000_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/IsNatura2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/IsNatura2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True"
 		{
 		
 		}
 		attribute<uint32> Bundelingsgebieden_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/nationaal_bundelingsgebied_def_juni09.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/nationaal_bundelingsgebied_def_juni09.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		
@@ -463,7 +463,7 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 		}
 		
 		unit<uint32> Bufferzones_2005_src
-		:  StorageName = "%SourceDataDir%/RuimteBeslag/bufferzones_2005.shp"
+		:  StorageName = "%AltSourceDataDir%/RuimteBeslag/bufferzones_2005.shp"
 		,  StorageType = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -471,7 +471,7 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 			attribute<.>               per_grid (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
 		}
 		unit<uint32> EHS_1990_src
-		:  StorageName = "%SourceDataDir%/RuimteBeslag/EHS1990.shp"
+		:  StorageName = "%AltSourceDataDir%/RuimteBeslag/EHS1990.shp"
 		,  StorageType = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -491,7 +491,7 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 		}
 		
 		unit<uint32> GroeneHart_2004_src
-		:  StorageName = "%SourceDataDir%/RuimteBeslag/Gh_2004.shp"
+		:  StorageName = "%AltSourceDataDir%/RuimteBeslag/Gh_2004.shp"
 		,  StorageType = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -511,39 +511,39 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 		}
 		
 		attribute<float32> LU_share_agriculture_2000 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_agriculture_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_share_agriculture_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_share_construction_2000 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_construction_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_share_construction_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_share_infrastructure_2000 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_infrastructure_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_share_infrastructure_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_share_nature_2000 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_nature_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_share_nature_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_share_otherbuiltup_2000 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_otherbuiltup_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_share_otherbuiltup_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_share_residential_2000 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_residential_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_share_residential_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_share_urbangreen_2000 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_urbangreen_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_share_urbangreen_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_share_water_2000 (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_share_water_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_share_water_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_simpson_diversity_index_2000_src (NL_grid/domain)
-		:	StorageName     = "%SourceDataDir%/RuimteBeslag/LU_simpson_diversity_index_2000.tif"
+		:	StorageName     = "%AltSourceDataDir%/RuimteBeslag/LU_simpson_diversity_index_2000.tif"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		attribute<float32> LU_simpson_diversity_index_2000 (NL_grid/domain) := 1f - LU_simpson_diversity_index_2000_src;
@@ -640,7 +640,7 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 			,	Source      = "Y:\data\Indibase\clo\w_nl_1\2_productie\kaart\1023_001k_clo\data\bwmbel1km1"
 							  "conversie in ArcGIS 10.3.1. naar tif-formaat met -9999 als missing value"
 			,	url         = "https://www.clo.nl/indicatoren/nl1023-belevingskaart-van-het-nederlandse-landschap"
-			,	StorageName = "%SourceDataDir%/RuimteBeslag/Belevingkaart_van_het_Nederlandse_Landschap_2006.tif";
+			,	StorageName = "%AltSourceDataDir%/RuimteBeslag/Belevingkaart_van_het_Nederlandse_Landschap_2006.tif";
 			
 			attribute<float32> NoMissing (NL_grid/domain) := Src == -9999[float32] ? (0/0)[float32] : Src;
 			attribute<float32> NoMissing2(NL_grid/domain) := Src == -9999[float32] ? min(NoMissing)-1f : Src;

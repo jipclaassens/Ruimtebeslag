@@ -3,7 +3,7 @@ container regios : using = "geometries"
 	container nederland
 	{
 		unit<uint32> src 
-		:	StorageName     = "%SourceDataDir%/CBS/Nederland.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/Nederland.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -51,7 +51,7 @@ container regios : using = "geometries"
 	container Randstad
 	{
 		unit<uint32> src 
-			:	StorageName     = "%SourceDataDir%/CBS/Randstad.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/Randstad.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -63,7 +63,7 @@ container regios : using = "geometries"
 	container provincies
 	{
 		unit<uint32> src_2012 
-		:	StorageName     = "%SourceDataDir%/CBS/2012/CBS_Provincie_2012.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2012/CBS_Provincie_2012.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -77,7 +77,7 @@ container regios : using = "geometries"
 	container grootstedelijke_agglomeratie
 	{
 		unit<uint32> src_2012 
-		:	StorageName     = "%SourceDataDir%/CBS/2012/CBS_grootstedelijke_agglomeratie_2012.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2012/CBS_grootstedelijke_agglomeratie_2012.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -91,7 +91,7 @@ container regios : using = "geometries"
 	container corop
 	{
 		unit<uint32> src_2012 
-		:	StorageName     = "%SourceDataDir%/CBS/2012/CBS_COROP_2012.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2012/CBS_COROP_2012.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -110,7 +110,7 @@ container regios : using = "geometries"
 		container gem_src
 		{
 			unit<uint32> j2019 
-			:	StorageName     = "%SourceDataDir%/CBS/2019/gem_2019.fss"
+			:	StorageName     = "%AltSourceDataDir%/CBS/2019/gem_2019.fss"
 			,	StorageReadOnly = "true"
 			{
 				attribute<geometries/rdc> geometry (poly);
@@ -240,7 +240,7 @@ container regios : using = "geometries"
 			}
 		
 			unit<uint32> j2017 // hierin zijn gemeentes NIET uniek, door zee strook...
-			:	StorageName     = "%SourceDataDir%/CBS/2017/gem_2017.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/2017/gem_2017.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -250,7 +250,7 @@ container regios : using = "geometries"
 			}
 	
 			unit<uint32> j2016 // hierin zijn gemeentes NIET uniek, door zee strook...
-			:	StorageName     = "%SourceDataDir%/CBS/2016/gem_2016.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/2016/gem_2016.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -260,7 +260,7 @@ container regios : using = "geometries"
 			}
 			
 			unit<uint32> j2015 // hierin zijn gemeentes NIET uniek, door zee strook...
-			:	StorageName     = "%SourceDataDir%/CBS/2015/gem_2015.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/2015/gem_2015.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -274,7 +274,7 @@ container regios : using = "geometries"
 			}
 	
 			unit<uint32> j2012 // hierin zijn gemeentes NIET uniek, door zee strook...
-			:	StorageName     = "%SourceDataDir%/CBS/2012/gem_2012.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/2012/gem_2012.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -341,7 +341,7 @@ container regios : using = "geometries"
 	container NVM
 	{
 		unit<uint32> src 
-		:	StorageName     = "%SourceDataDir%/CBS/NVMregios.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/NVMregios.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -353,7 +353,7 @@ container regios : using = "geometries"
 	container buurten
 	{
 		unit<uint32> src_2012
-		:	StorageName     = "%SourceDataDir%/CBS/2012/buurt_2012.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2012/buurt_2012.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -367,7 +367,7 @@ container regios : using = "geometries"
 		}
 		
 		unit<uint32> src_2016
-		:	StorageName     = "%SourceDataDir%/CBS/2016/buurt_2016.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2016/buurt_2016.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -377,7 +377,7 @@ container regios : using = "geometries"
 			attribute<uint32>           woz                       := rjoin(BU_CODE, woz_buurt/woz_2016/CODERING, uint32(woz_buurt/woz_2016/GEMIDDELDE_WONINGWAARDE));
 		}
 		unit<uint32> src_2019
-		:	StorageName     = "%SourceDataDir%/CBS/2019/buurt_2019_v1.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2019/buurt_2019_v1.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -396,7 +396,7 @@ container regios : using = "geometries"
 	container wijken
 	{
 		unit<uint32> src_2012 
-		:	StorageName     = "%SourceDataDir%/CBS/2012/wijk_2012.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2012/wijk_2012.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -406,7 +406,7 @@ container regios : using = "geometries"
 			// attribute<uint32>           woz                        := rjoin(WK_CODE, woz_buurt/woz_2012/CODERING, uint32(woz_buurt/woz_2012/GEMIDDELDE_WONINGWAARDE));
 		}
 		unit<uint32> src_2016 
-		:	StorageName     = "%SourceDataDir%/CBS/2016/wijk_2016.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2016/wijk_2016.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -416,7 +416,7 @@ container regios : using = "geometries"
 			// attribute<uint32>           woz                        := rjoin(WK_CODE, woz_buurt/woz_2016/CODERING, uint32(woz_buurt/woz_2016/GEMIDDELDE_WONINGWAARDE));
 		}
 		unit<uint32> src_2018 
-		:	StorageName     = "%SourceDataDir%/CBS/2018/wijk_2018.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2018/wijk_2018.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		,	SyncMode        = "none"
@@ -437,7 +437,7 @@ container regios : using = "geometries"
 			attribute<int32>             g_woz           := CBS_kerncijfers/g_woz[int32][Kerncijfers_rel];
 			
 			unit<uint32> CBS_kerncijfers 
-			:	StorageName     = "%SourceDataDir%/CBS/2018/kerncijfers-wijken-2018.csv"
+			:	StorageName     = "%AltSourceDataDir%/CBS/2018/kerncijfers-wijken-2018.csv"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			,	SyncMode = "all"
@@ -446,7 +446,7 @@ container regios : using = "geometries"
 		}
 		
 		unit<uint32> Read_Wijk2019_shp 
-		:	StorageName     = "%SourceDataDir%/CBS/2019/wijk_2019_v1.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/2019/wijk_2019_v1.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -456,7 +456,7 @@ container regios : using = "geometries"
 		}
 		
 		unit<uint32>  Make_Wijk2019 := Read_Wijk2019_shp
-		, StorageName = "%SourceDataDir%/CBS/2019/wijk_2019.fss"
+		, StorageName = "%AltSourceDataDir%/CBS/2019/wijk_2019.fss"
 		, DialogData  = "Polygons"
 		, DialogType  = "Map"
 		{
@@ -466,7 +466,7 @@ container regios : using = "geometries"
 		}
 		
 		unit<uint32> src_2019
-		: 	StorageName = "%SourceDataDir%/CBS/2019/wijk_2019.fss"
+		: 	StorageName = "%AltSourceDataDir%/CBS/2019/wijk_2019.fss"
 		,	StorageReadOnly = "True"
 		{
 			attribute<geometries/rdc>   geometry  (poly);
@@ -497,7 +497,7 @@ container regios : using = "geometries"
 		container impl
 		{
 			unit<uint32> Read_PC6_shape
-			:	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -506,7 +506,7 @@ container regios : using = "geometries"
 			}
 			
 			unit<uint32> Read_PC6_shape_areas
-			:	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020_areas.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020_areas.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -515,7 +515,7 @@ container regios : using = "geometries"
 			}
 			
 			unit<uint32> Make_PC6_FSS := Read_PC6_shape
-			,	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020.fss"
+			,	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020.fss"
 			{
 				attribute<rdc>             geometry      := Read_PC6_shape/geometry;
 				attribute<string>               PC6           := Read_PC6_shape/postcode6;
@@ -523,7 +523,7 @@ container regios : using = "geometries"
 			}
 			
 			unit<uint32> Make_PC6_areas_FSS := Read_PC6_shape_areas
-			,	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020_areas.fss"
+			,	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020_areas.fss"
 			{
 				attribute<rdc>             geometry (poly) := Read_PC6_shape_areas/geometry;
 				attribute<string>               PC6             := Read_PC6_shape_areas/PC6;
@@ -533,7 +533,7 @@ container regios : using = "geometries"
 			}
 			
 			unit<uint32> Read_PC4_shape
-			:	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -542,7 +542,7 @@ container regios : using = "geometries"
 			}
 			
 			unit<uint32> Read_PC4_shape_areas
-			:	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020_areas.shp"
+			:	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020_areas.shp"
 			,	StorageType     = "gdal.vect"
 			,	StorageReadOnly = "True"
 			{
@@ -551,7 +551,7 @@ container regios : using = "geometries"
 			}
 			
 			unit<uint32> Make_PC4_FSS := Read_PC4_shape
-			,	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020.fss"
+			,	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020.fss"
 			{
 				attribute<rdc>             geometry      := Read_PC4_shape/geometry;
 				attribute<string>               PC4           := Read_PC4_shape/postcode4;
@@ -559,7 +559,7 @@ container regios : using = "geometries"
 			}
 			
 			unit<uint32> Make_PC4_areas_FSS := Read_PC4_shape_areas
-			,	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020_areas.fss"
+			,	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020_areas.fss"
 			{
 				attribute<rdc>             geometry (poly) := Read_PC4_shape_areas/geometry;
 				attribute<string>               PC4             := Read_PC4_shape_areas/PC4;
@@ -568,7 +568,7 @@ container regios : using = "geometries"
 		}
 	
 		unit<uint32> Postcode4_oud
-		:	StorageName     = "%SourceDataDir%/CBS/PC4_shape.shp"
+		:	StorageName     = "%AltSourceDataDir%/CBS/PC4_shape.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -599,7 +599,7 @@ container regios : using = "geometries"
 		
 		
 		unit<uint32> Postcode6
-		:	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020.fss"
+		:	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020.fss"
 		,	StorageReadOnly = "True"
 		{
 			attribute<rdc>             geometry;
@@ -609,7 +609,7 @@ container regios : using = "geometries"
 		}
 		
 		unit<uint32> Postcode6_areas
-		:	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020_areas.fss"
+		:	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc6_xy_tm2020_areas.fss"
 		,	StorageReadOnly = "True"
 		{
 			attribute<rdc>             geometry (poly);
@@ -619,7 +619,7 @@ container regios : using = "geometries"
 		
 		
 		unit<uint32> Postcode4
-		:	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020.fss"
+		:	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020.fss"
 		,	StorageReadOnly = "True"
 		{
 			attribute<rdc>             geometry;
@@ -628,7 +628,7 @@ container regios : using = "geometries"
 		}
 		
 		unit<uint32> Postcode4_areas
-		:	StorageName     = "%SourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020_areas.fss"
+		:	StorageName     = "%AltSourceDataDir%/CBS/pc6_tm2019_shp/pc4_xy_tm2020_areas.fss"
 		,	StorageReadOnly = "True"
 		{
 			attribute<rdc>                        geometry (poly);
@@ -657,7 +657,7 @@ container regios : using = "geometries"
 	container MRA
 	{
 		unit<uint32> GemMRA8
-		: StorageName = "%SourceDataDir%/CBS/RegioindelingMRA2016.csv"
+		: StorageName = "%AltSourceDataDir%/CBS/RegioindelingMRA2016.csv"
 		, StorageType = "gdal.vect"
 		, StorageReadOnly = "True"
 		{
@@ -676,7 +676,7 @@ container regios : using = "geometries"
 		}
 		
 		unit<uint32> MRA1_src: NrOfRows = 1
-		,	StorageName = "%SourceDataDir%/CBS/RegioindelingMRA2016.fss"
+		,	StorageName = "%AltSourceDataDir%/CBS/RegioindelingMRA2016.fss"
 		{
 			attribute<ipoint>    geometry0 (poly) := partitioned_union_polygon(ipolygon(MRA8/geometry0), MRA8/MRA1_rel), DisableStorage = "true";
 			attribute<rdc>       geometry (poly)  := geometry0[rdc];
@@ -686,7 +686,7 @@ container regios : using = "geometries"
 		}
 		
 		unit<uint32> MRA1
-		:	StorageName = "%SourceDataDir%/CBS/RegioindelingMRA2016.fss"
+		:	StorageName = "%AltSourceDataDir%/CBS/RegioindelingMRA2016.fss"
 		,	StorageReadOnly = "true"
 		{
 			attribute<rdc>       geometry (poly);

@@ -33,7 +33,7 @@ container BAG : using = "typeringen;eenheden"
 			parameter<uint32> Year;
 			
 			/////
-			parameter<string> SnapshotDir := '%SourceDataDir%/BAG/snapshots.ext/' +string(Year)+ '0101';
+			parameter<string> SnapshotDir := '%RSo_DataDir%/Vastgoed/'+string(Year)+'0101_RS';
 			
 			unit<uint32> src
 			:	StorageName     = "= SnapshotDir + '/pand.fss'"

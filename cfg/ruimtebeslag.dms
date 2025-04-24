@@ -150,4 +150,5 @@ container Ruimtebeslag
 
 	#include <brondata.dms>
 	#include <analyse.dms>
+	#include <ConfigSettings.dms>
 }

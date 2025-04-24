@@ -72,7 +72,7 @@ container typeringen: isHidden = "True", using = "eenheden"
 		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
 	}
 
-	unit<uint32> jaren := range(uint32, 2012, 2022)
+	unit<uint32> jaren := range(uint32, 2012, 2026)
 	{
 		attribute<int32>  values  := id(.)[int32];
 		attribute<string> label   := name , DialogType = "LabelText";
@@ -208,7 +208,7 @@ container typeringen: isHidden = "True", using = "eenheden"
 	
 	
 	unit<uint32> SBI08
-	:  StorageName = "%SourceDataDir%/RSL/Grondgebruik/SBI2008_2018_TIGRIS_sector.csv"
+	:  StorageName = "%RSL_DataDir%/Grondgebruik/SBI2008_2018_TIGRIS_sector.csv"
 	,  StorageType = "gdal.vect"
 	,  StorageReadOnly = "True" 
 	{
