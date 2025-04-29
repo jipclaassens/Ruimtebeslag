@@ -3,7 +3,7 @@ container Analyse : using = "eenheden;typeringen"
 	container BBG_LISA_kruistabel
 	{
 		unit<uint32> BBG  := Brondata/BBG;
-		unit<uint32> LISA := /Brondata/LISA/PerJaar/Y2015/PerYear
+		unit<uint32> LISA := /Brondata/LISA/PerJaar/Y2015/FSS
 		{
 			attribute<BBG>                                   BBG_rel  := point_in_polygon(geometry, BBG/geometry_rd);
 			attribute<Typeringen/BBG/gg_RuimtebeslagRapport> RBG_rel := rjoin(BBG_rel, id(BBG), BBG/InRBG_klassen/Y2015);
@@ -40,7 +40,7 @@ container Analyse : using = "eenheden;typeringen"
 	
 	container LISA_BAG_kruistabel 
 	{
-		unit<uint32> LISA := /Brondata/LISA/PerJaar/Y2018/PerYear
+		unit<uint32> LISA := /Brondata/LISA/PerJaar/Y2018/FSS
 		{
 			attribute<Pand>    BAG_rel  := point_in_polygon(geometry, Pand/geometry);
 			attribute<Jobs>     Banen_per_pand (Pand) := sum(banen[Jobs], BAG_rel);
@@ -72,17 +72,17 @@ container Analyse : using = "eenheden;typeringen"
 		unit<uint32> Vbo := /Brondata/BAG/Snapshots/VBOs/Y2018/Src/Vbo;
 		unit<uint32> Pand := /Brondata/BAG/Snapshots/Panden/Y2018/pand/pand_met_vbo_alle_functies
 		{
-			attribute<typeringen/vbo_gebruiksdoel>           DomFunctie := Footprint_VBOOpp_per_vbo_functie/argmax;
+			attribute<typeringen/vbo_gebruiksdoel_plus>           DomFunctie := Footprint_VBOOpp_per_vbo_functie/argmax;
 			
-			attribute<vbo_gebruiksdoel> ArgMaxOppVBOinPand               := Pand/Fractie_VBOOpp_per_vbo_functie/argmax;
+			attribute<vbo_gebruiksdoel_plus> ArgMaxOppVBOinPand               := Pand/Fractie_VBOOpp_per_vbo_functie/argmax;
 			attribute<TXLJobs7_nodata>  ArgMaxBanenLISAinPand            := LISA/Fractie_Banen_per_functie/argmax;
-			attribute<TXLJobs7_nodata>  ArgMaxBanenLISAinPand_zonderWoon := DomFunctie == vbo_gebruiksdoel/v/woon ? TXLJobs7_nodata/v/NA : ArgMaxBanenLISAinPand;
+			attribute<TXLJobs7_nodata>  ArgMaxBanenLISAinPand_zonderWoon := DomFunctie == vbo_gebruiksdoel_plus/v/woon ? TXLJobs7_nodata/v/NA : ArgMaxBanenLISAinPand;
 			
 			
 			container SumModusBAGperModusLisa_metWoon_AantalPanden :=
 				for_each_nedv(
-					vbo_gebruiksdoel/name
-					, 'sum(DomFunctie == vbo_gebruiksdoel/V/'+vbo_gebruiksdoel/name+' ? 1 : 0, ArgMaxBanenLISAinPand)'
+					vbo_gebruiksdoel_plus/name
+					, 'sum(DomFunctie == vbo_gebruiksdoel_plus/V/'+vbo_gebruiksdoel_plus/name+' ? 1 : 0, ArgMaxBanenLISAinPand)'
 					, TXLJobs7_nodata
 					, uint32
 				);
@@ -91,163 +91,162 @@ container Analyse : using = "eenheden;typeringen"
 				for_each_nedv(
 					TXLJobs7_nodata/name
 					, 'sum(ArgMaxBanenLISAinPand == TXLJobs7_nodata/V/'+TXLJobs7_nodata/name+' ? LISA/Sum_Banen_per_functie/'+TXLJobs7_nodata/name+' : 0[jobs], ArgMaxOppVBOinPand )'
-					, vbo_gebruiksdoel
+					, vbo_gebruiksdoel_plus
 					, jobs
 				);
 			container SumModusBAGperModusLisa_metWoon_Footprint :=
 				for_each_nedv(
-					vbo_gebruiksdoel/name
-					, 'sum(DomFunctie == vbo_gebruiksdoel/V/'+vbo_gebruiksdoel/name+' ? Pand/Fractie_VBOOpp_per_vbo_functie/'+vbo_gebruiksdoel/name+' * Pand/footprint / 1[m2] * 1[m2footprint] : 0[m2footprint], ArgMaxBanenLISAinPand)'
+					vbo_gebruiksdoel_plus/name
+					, 'sum(DomFunctie == vbo_gebruiksdoel_plus/V/'+vbo_gebruiksdoel_plus/name+' ? Pand/Fractie_VBOOpp_per_vbo_functie/'+vbo_gebruiksdoel_plus/name+' * Pand/footprint / 1[m2] * 1[m2footprint] : 0[m2footprint], ArgMaxBanenLISAinPand)'
 					, TXLJobs7_nodata
 					, m2footprint
 				);				
 				
 			container Fractie_VBOOpp_per_vbo_functie :=
 				for_each_nedv(
-					typeringen/vbo_gebruiksdoel/name
-					,'(sum(Vbo/gebruiksdoel_class == typeringen/vbo_gebruiksdoel/V/'+typeringen/vbo_gebruiksdoel/name+' ? Vbo/oppervlakte_trunc[m2] : (0/0)[m2], VBO/pand_rel) ) / (sum_vbo_opp)'
+					typeringen/vbo_gebruiksdoel_plus/name
+					,'(sum(Vbo/gebruiksdoel_plus_rel == typeringen/vbo_gebruiksdoel_plus/V/'+typeringen/vbo_gebruiksdoel_plus/name+' ? Vbo/oppervlakte_trunc[m2] : (0/0)[m2], VBO/pand_rel) ) / (sum_vbo_opp)'
 					, pand
 					, float32
 				)
 			{
-				attribute<typeringen/vbo_gebruiksdoel> ArgMax (..) := ='!IsDefined(bijeenkomst) ? (0/0)[typeringen/vbo_gebruiksdoel] : ArgMax('+AsItemList(typeringen/vbo_gebruiksdoel/name)+')[typeringen/vbo_gebruiksdoel] ';
+				attribute<typeringen/vbo_gebruiksdoel_plus> ArgMax (..) := ='!IsDefined(bijeenkomst) ? (0/0)[typeringen/vbo_gebruiksdoel_plus] : ArgMax('+AsItemList(typeringen/vbo_gebruiksdoel_plus/name)+')[typeringen/vbo_gebruiksdoel_plus] ';
 			}
 		}
 	}
 
-	unit<uint32> Export_Regressie := NL_grid/points
-	, FreeData = "false"
+	unit<uint32> Export_Regressie := geometries/perGridsize/size_100m/points
 	{
-		attribute<uint32>     id                       := NL_grid/points/id;
-		attribute<float32>    x                        := NL_grid/points/x;
-		attribute<float32>    y                        := NL_grid/points/y;
+		attribute<uint32>     id_rel                   := geometries/perGridsize/size_100m/points/id_rel;
+		attribute<float32>    x                        := geometries/perGridsize/size_100m/points/x;
+		attribute<float32>    y                        := geometries/perGridsize/size_100m/points/y;
 		
-		// attribute<m2_ha>         FP_2012_Logies_cbsloc2015           := (IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid) ? Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies  : 0[m2_ha])[/NL_grid/points/NL_grid_domain_rel];
-		// attribute<m2_ha>         FP_2021_Logies_cbsloc2015           := (IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid) ? Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies  : 0[m2_ha])[/NL_grid/points/NL_grid_domain_rel];
-		// attribute<m2_ha>         FP_2012_Logies              (NL_grid/domain)        := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies;
-		// attribute<m2_ha>         FP_2012_Logies_cbsloc2015   (NL_grid/domain)        := (IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid) ? Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies  : 0[m2_ha]);
-		// attribute<m2_ha>         FP_2021_Logies              (NL_grid/domain)        := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies;
-		// attribute<m2_ha>         FP_2021_Logies_cbsloc2015   (NL_grid/domain)        := (IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid) ? Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies  : 0[m2_ha]);
+		// attribute<m2_ha>         FP_2012_Logies_cbsloc2015           := (IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid) ? Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies  : 0[m2_ha])[grid_rel];
+		// attribute<m2_ha>         FP_2021_Logies_cbsloc2015           := (IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid) ? Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies  : 0[m2_ha])[grid_rel];
+		// attribute<m2_ha>         FP_2012_Logies              (rdc_100m)        := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies;
+		// attribute<m2_ha>         FP_2012_Logies_cbsloc2015   (rdc_100m)        := (IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid) ? Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies  : 0[m2_ha]);
+		// attribute<m2_ha>         FP_2021_Logies              (rdc_100m)        := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies;
+		// attribute<m2_ha>         FP_2021_Logies_cbsloc2015   (rdc_100m)        := (IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid) ? Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies  : 0[m2_ha]);
 		
-		attribute<bool>          IsVerblijfsRecreatie1996         := IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub1996/per_grid)[NL_grid/points/NL_grid_domain_rel];
-		attribute<bool>          IsVerblijfsRecreatie2015         := IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/per_grid)[NL_grid/points/NL_grid_domain_rel];
-		attribute<bool>          IsVerblijfsRecreatie1996_cbsBuff := IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub1996/Read_single2multi_2/per_grid)[NL_grid/points/NL_grid_domain_rel];
-		attribute<bool>          IsVerblijfsRecreatie2015_cbsBuff := IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid)[NL_grid/points/NL_grid_domain_rel];
+		attribute<bool>          IsVerblijfsRecreatie1996         := IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub1996/per_grid)[grid_rel];
+		attribute<bool>          IsVerblijfsRecreatie2015         := IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/per_grid)[grid_rel];
+		attribute<bool>          IsVerblijfsRecreatie1996_cbsBuff := IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub1996/Read_single2multi_2/per_grid)[grid_rel];
+		attribute<bool>          IsVerblijfsRecreatie2015_cbsBuff := IsDefined(Brondata/BBG/IsVerblijfsRecreatieSub2015/Read_single2multi_2/per_grid)[grid_rel];
 		
-		attribute<float32>       Landscape_Quality        := /Brondata/Omgeving/BelevingLandschap/NoMissing2[/NL_grid/points/NL_grid_domain_rel];
+		attribute<float32>       Landscape_Quality        := /Brondata/Omgeving/BelevingLandschap/NoMissing2[grid_rel];
 		
-		attribute<m2_ha>         FP_2012_Bijeenkomst      := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/bijeenkomst[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Cel              := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/cel[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Gezondheidszorg  := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/gezondheidszorg[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Industrie        := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/industrie[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Kantoor          := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/kantoor[/NL_grid/points/NL_grid_domain_rel];
-		// attribute<m2_ha>         FP_2012_Logies           := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Onderwijs        := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/onderwijs[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Overige_gebruiks := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/overige_gebruiks[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Sport            := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/sport[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Winkel           := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/winkel[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2012_Woon             := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/woon[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Bijeenkomst      := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/bijeenkomst[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Cel              := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/cel[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Gezondheidszorg  := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/gezondheidszorg[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Industrie        := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/industrie[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Kantoor          := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/kantoor[/NL_grid/points/NL_grid_domain_rel];
-		// attribute<m2_ha>         FP_2021_Logies           := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Onderwijs        := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/onderwijs[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Overige_gebruiks := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/overige_gebruiks[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Sport            := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/sport[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Winkel           := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/winkel[/NL_grid/points/NL_grid_domain_rel];
-		attribute<m2_ha>         FP_2021_Woon             := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/woon[/NL_grid/points/NL_grid_domain_rel];
+		attribute<m2_ha>         FP_2012_Bijeenkomst      := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/bijeenkomst[grid_rel];
+		attribute<m2_ha>         FP_2012_Cel              := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/cel[grid_rel];
+		attribute<m2_ha>         FP_2012_Gezondheidszorg  := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/gezondheidszorg[grid_rel];
+		attribute<m2_ha>         FP_2012_Industrie        := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/industrie[grid_rel];
+		attribute<m2_ha>         FP_2012_Kantoor          := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/kantoor[grid_rel];
+		// attribute<m2_ha>         FP_2012_Logies           := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies[grid_rel];
+		attribute<m2_ha>         FP_2012_Onderwijs        := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/onderwijs[grid_rel];
+		attribute<m2_ha>         FP_2012_Overige_gebruiks := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/overige_gebruiks[grid_rel];
+		attribute<m2_ha>         FP_2012_Sport            := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/sport[grid_rel];
+		attribute<m2_ha>         FP_2012_Winkel           := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/winkel[grid_rel];
+		attribute<m2_ha>         FP_2012_Woon             := Brondata/BAG/Snapshots/Panden/Y2012/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/woon[grid_rel];
+		attribute<m2_ha>         FP_2021_Bijeenkomst      := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/bijeenkomst[grid_rel];
+		attribute<m2_ha>         FP_2021_Cel              := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/cel[grid_rel];
+		attribute<m2_ha>         FP_2021_Gezondheidszorg  := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/gezondheidszorg[grid_rel];
+		attribute<m2_ha>         FP_2021_Industrie        := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/industrie[grid_rel];
+		attribute<m2_ha>         FP_2021_Kantoor          := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/kantoor[grid_rel];
+		// attribute<m2_ha>         FP_2021_Logies           := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/logies[grid_rel];
+		attribute<m2_ha>         FP_2021_Onderwijs        := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/onderwijs[grid_rel];
+		attribute<m2_ha>         FP_2021_Overige_gebruiks := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/overige_gebruiks[grid_rel];
+		attribute<m2_ha>         FP_2021_Sport            := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/sport[grid_rel];
+		attribute<m2_ha>         FP_2021_Winkel           := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/winkel[grid_rel];
+		attribute<m2_ha>         FP_2021_Woon             := Brondata/BAG/Snapshots/Panden/Y2021/pand/pand_met_vbo_alle_functies/Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd/woon[grid_rel];
 		
-		attribute<km>         DistTo_Airports_2019           := Brondata/SpatialVars/DistTo_Airports_2019[/NL_grid/points/NL_grid_domain_rel];
-		attribute<km>         DistTo_Highway_acces_exit_2018 := Brondata/SpatialVars/DistTo_highway_acces_exit_2018[/NL_grid/points/NL_grid_domain_rel];
-		attribute<km>         DistTo_Zeehavens_2019          := Brondata/SpatialVars/DistTo_Zeehavens_2019[/NL_grid/points/NL_grid_domain_rel];
-		attribute<km>         DistTo_Urban_Contour_2000      := Brondata/SpatialVars/DistTo_Urban_Contour_2000[/NL_grid/points/NL_grid_domain_rel];
-		attribute<km>         DistTo_Trainstations_2019      := Brondata/SpatialVars/DistTo_Trainstations_km_2019[/NL_grid/points/NL_grid_domain_rel];
-		attribute<km>         DistTo_GroeneHart_2004         := Brondata/SpatialVars/DistTo_GroeneHart_2004[/NL_grid/points/NL_grid_domain_rel];
-		attribute<km>         DistTo_EHS_1990                := Brondata/SpatialVars/DistTo_EHS_1990[/NL_grid/points/NL_grid_domain_rel];
-		attribute<km>         DistTo_Natura2000_2020         := Brondata/SpatialVars/DistTo_Natura2000_2020[/NL_grid/points/NL_grid_domain_rel];
-		attribute<min>        tt_100kinhab_min_2017          := Brondata/SpatialVars/tt_100kinhab_min_2017[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    UAI_2018                       := Brondata/SpatialVars/UAI_2018[/NL_grid/points/NL_grid_domain_rel];
-		attribute<eur_m2>     Hedonic_landprice_2007         := Brondata/SpatialVars/Hedonic_landprice_2007[/NL_grid/points/NL_grid_domain_rel];
-		attribute<uint32>     Vinex                          := Brondata/SpatialVars/Vinex[/NL_grid/points/NL_grid_domain_rel];
-		attribute<uint32>     Natura2000                     := Brondata/SpatialVars/Natura2000[/NL_grid/points/NL_grid_domain_rel];
-		attribute<uint32>     Bundelingsgebieden             := Brondata/SpatialVars/Bundelingsgebieden[/NL_grid/points/NL_grid_domain_rel];
-		attribute<uint32>     Bufferzones_2005               := Brondata/SpatialVars/Bufferzones_2005[/NL_grid/points/NL_grid_domain_rel];
-		attribute<uint32>     EHS_1990                       := Brondata/SpatialVars/EHS_1990[/NL_grid/points/NL_grid_domain_rel];
-		attribute<uint32>     GroeneHart_2004                := Brondata/SpatialVars/GroeneHart_2004[/NL_grid/points/NL_grid_domain_rel];
+		attribute<km>         DistTo_Airports_2019           := Brondata/SpatialVars/DistTo_Airports_2019[grid_rel];
+		attribute<km>         DistTo_Highway_acces_exit_2018 := Brondata/SpatialVars/DistTo_highway_acces_exit_2018[grid_rel];
+		attribute<km>         DistTo_Zeehavens_2019          := Brondata/SpatialVars/DistTo_Zeehavens_2019[grid_rel];
+		attribute<km>         DistTo_Urban_Contour_2000      := Brondata/SpatialVars/DistTo_Urban_Contour_2000[grid_rel];
+		attribute<km>         DistTo_Trainstations_2019      := Brondata/SpatialVars/DistTo_Trainstations_km_2019[grid_rel];
+		attribute<km>         DistTo_GroeneHart_2004         := Brondata/SpatialVars/DistTo_GroeneHart_2004[grid_rel];
+		attribute<km>         DistTo_EHS_1990                := Brondata/SpatialVars/DistTo_EHS_1990[grid_rel];
+		attribute<km>         DistTo_Natura2000_2020         := Brondata/SpatialVars/DistTo_Natura2000_2020[grid_rel];
+		attribute<min>        tt_100kinhab_min_2017          := Brondata/SpatialVars/tt_100kinhab_min_2017[grid_rel];
+		attribute<float32>    UAI_2018                       := Brondata/SpatialVars/UAI_2018[grid_rel];
+		attribute<eur_m2>     Hedonic_landprice_2007         := Brondata/SpatialVars/Hedonic_landprice_2007[grid_rel];
+		attribute<uint32>     Vinex                          := Brondata/SpatialVars/Vinex[grid_rel];
+		attribute<uint32>     Natura2000                     := Brondata/SpatialVars/Natura2000[grid_rel];
+		attribute<uint32>     Bundelingsgebieden             := Brondata/SpatialVars/Bundelingsgebieden[grid_rel];
+		attribute<uint32>     Bufferzones_2005               := Brondata/SpatialVars/Bufferzones_2005[grid_rel];
+		attribute<uint32>     EHS_1990                       := Brondata/SpatialVars/EHS_1990[grid_rel];
+		attribute<uint32>     GroeneHart_2004                := Brondata/SpatialVars/GroeneHart_2004[grid_rel];
 
-		attribute<float32>    LU_share_greenhouses_1996      := /Brondata/BBG/Share_LU_type/J1996/greenhouses[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_agriculture_1996      := /Brondata/BBG/Share_LU_type/J1996/agriculture[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_construction_1996     := /Brondata/BBG/Share_LU_type/J1996/construction[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_infrastructure_1996   := /Brondata/BBG/Share_LU_type/J1996/infrastructure[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_forest_1996           := /Brondata/BBG/Share_LU_type/J1996/forest[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_othernature_1996      := /Brondata/BBG/Share_LU_type/J1996/othernature[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_otherbuiltup_1996     := /Brondata/BBG/Share_LU_type/J1996/otherbuiltup[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_residential_1996      := /Brondata/BBG/Share_LU_type/J1996/residential[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_urbangreen_1996       := /Brondata/BBG/Share_LU_type/J1996/urbangreen[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_water_1996            := /Brondata/BBG/Share_LU_type/J1996/water[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_simpson_diversity_index_1996:= /Brondata/BBG/Share_LU_type/J1996/diversity[/NL_grid/points/NL_grid_domain_rel];
+		attribute<float32>    LU_share_greenhouses_1996      := /Brondata/BBG/Share_LU_type/J1996/greenhouses[grid_rel];
+		attribute<float32>    LU_share_agriculture_1996      := /Brondata/BBG/Share_LU_type/J1996/agriculture[grid_rel];
+		attribute<float32>    LU_share_construction_1996     := /Brondata/BBG/Share_LU_type/J1996/construction[grid_rel];
+		attribute<float32>    LU_share_infrastructure_1996   := /Brondata/BBG/Share_LU_type/J1996/infrastructure[grid_rel];
+		attribute<float32>    LU_share_forest_1996           := /Brondata/BBG/Share_LU_type/J1996/forest[grid_rel];
+		attribute<float32>    LU_share_othernature_1996      := /Brondata/BBG/Share_LU_type/J1996/othernature[grid_rel];
+		attribute<float32>    LU_share_otherbuiltup_1996     := /Brondata/BBG/Share_LU_type/J1996/otherbuiltup[grid_rel];
+		attribute<float32>    LU_share_residential_1996      := /Brondata/BBG/Share_LU_type/J1996/residential[grid_rel];
+		attribute<float32>    LU_share_urbangreen_1996       := /Brondata/BBG/Share_LU_type/J1996/urbangreen[grid_rel];
+		attribute<float32>    LU_share_water_1996            := /Brondata/BBG/Share_LU_type/J1996/water[grid_rel];
+		attribute<float32>    LU_simpson_diversity_index_1996:= /Brondata/BBG/Share_LU_type/J1996/diversity[grid_rel];
 		
-		attribute<float32>    LU_share_greenhouses_2012      := /Brondata/BBG/Share_LU_type/J2012/greenhouses[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_agriculture_2012      := /Brondata/BBG/Share_LU_type/J2012/agriculture[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_construction_2012     := /Brondata/BBG/Share_LU_type/J2012/construction[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_infrastructure_2012   := /Brondata/BBG/Share_LU_type/J2012/infrastructure[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_forest_2012           := /Brondata/BBG/Share_LU_type/J2012/forest[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_othernature_2012      := /Brondata/BBG/Share_LU_type/J2012/othernature[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_otherbuiltup_2012     := /Brondata/BBG/Share_LU_type/J2012/otherbuiltup[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_residential_2012      := /Brondata/BBG/Share_LU_type/J2012/residential[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_urbangreen_2012       := /Brondata/BBG/Share_LU_type/J2012/urbangreen[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_share_water_2012            := /Brondata/BBG/Share_LU_type/J2012/water[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    LU_simpson_diversity_index_2012:= /Brondata/BBG/Share_LU_type/J2012/diversity[/NL_grid/points/NL_grid_domain_rel];
+		attribute<float32>    LU_share_greenhouses_2012      := /Brondata/BBG/Share_LU_type/J2012/greenhouses[grid_rel];
+		attribute<float32>    LU_share_agriculture_2012      := /Brondata/BBG/Share_LU_type/J2012/agriculture[grid_rel];
+		attribute<float32>    LU_share_construction_2012     := /Brondata/BBG/Share_LU_type/J2012/construction[grid_rel];
+		attribute<float32>    LU_share_infrastructure_2012   := /Brondata/BBG/Share_LU_type/J2012/infrastructure[grid_rel];
+		attribute<float32>    LU_share_forest_2012           := /Brondata/BBG/Share_LU_type/J2012/forest[grid_rel];
+		attribute<float32>    LU_share_othernature_2012      := /Brondata/BBG/Share_LU_type/J2012/othernature[grid_rel];
+		attribute<float32>    LU_share_otherbuiltup_2012     := /Brondata/BBG/Share_LU_type/J2012/otherbuiltup[grid_rel];
+		attribute<float32>    LU_share_residential_2012      := /Brondata/BBG/Share_LU_type/J2012/residential[grid_rel];
+		attribute<float32>    LU_share_urbangreen_2012       := /Brondata/BBG/Share_LU_type/J2012/urbangreen[grid_rel];
+		attribute<float32>    LU_share_water_2012            := /Brondata/BBG/Share_LU_type/J2012/water[grid_rel];
+		attribute<float32>    LU_simpson_diversity_index_2012:= /Brondata/BBG/Share_LU_type/J2012/diversity[grid_rel];
 		
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_greenhouses      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/greenhouses[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_agriculture      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/agriculture[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_construction     := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/construction[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_infrastructure   := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/infrastructure[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_forest           := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/forest[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_othernature      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/othernature[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_otherbuiltup     := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/otherbuiltup[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_residential      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/residential[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_urbangreen       := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/urbangreen[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_water            := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/water[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_diversity        := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/diversity[/NL_grid/points/NL_grid_domain_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_greenhouses      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/greenhouses[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_agriculture      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/agriculture[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_construction     := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/construction[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_infrastructure   := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/infrastructure[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_forest           := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/forest[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_othernature      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/othernature[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_otherbuiltup     := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/otherbuiltup[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_residential      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/residential[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_urbangreen       := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/urbangreen[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_water            := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/water[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_100r_diversity        := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r100/diversity[grid_rel];
 		
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_greenhouses      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/greenhouses[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_agriculture      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/agriculture[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_construction     := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/construction[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_infrastructure   := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/infrastructure[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_forest           := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/forest[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_othernature      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/othernature[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_otherbuiltup     := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/otherbuiltup[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_residential      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/residential[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_urbangreen       := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/urbangreen[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_water            := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/water[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_diversity        := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/diversity[/NL_grid/points/NL_grid_domain_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_greenhouses      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/greenhouses[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_agriculture      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/agriculture[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_construction     := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/construction[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_infrastructure   := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/infrastructure[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_forest           := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/forest[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_othernature      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/othernature[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_otherbuiltup     := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/otherbuiltup[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_residential      := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/residential[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_urbangreen       := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/urbangreen[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_water            := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/water[grid_rel];
+		attribute<float32>    avg_shr_LUtype_1996_neigh_1000r_diversity        := /Brondata/BBG/Avg_shr_LUtype_neigh/J1996/r1000/diversity[grid_rel];
 		
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_greenhouses      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/greenhouses[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_agriculture      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/agriculture[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_construction     := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/construction[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_infrastructure   := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/infrastructure[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_forest           := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/forest[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_othernature      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/othernature[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_otherbuiltup     := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/otherbuiltup[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_residential      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/residential[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_urbangreen       := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/urbangreen[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_water            := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/water[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_diversity        := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/diversity[/NL_grid/points/NL_grid_domain_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_greenhouses      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/greenhouses[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_agriculture      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/agriculture[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_construction     := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/construction[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_infrastructure   := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/infrastructure[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_forest           := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/forest[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_othernature      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/othernature[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_otherbuiltup     := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/otherbuiltup[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_residential      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/residential[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_urbangreen       := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/urbangreen[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_water            := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/water[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_100r_diversity        := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r100/diversity[grid_rel];
 
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_greenhouses      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/greenhouses[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_agriculture      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/agriculture[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_construction     := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/construction[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_infrastructure   := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/infrastructure[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_forest           := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/forest[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_othernature      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/othernature[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_otherbuiltup     := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/otherbuiltup[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_residential      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/residential[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_urbangreen       := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/urbangreen[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_water            := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/water[/NL_grid/points/NL_grid_domain_rel];
-		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_diversity        := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/diversity[/NL_grid/points/NL_grid_domain_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_greenhouses      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/greenhouses[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_agriculture      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/agriculture[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_construction     := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/construction[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_infrastructure   := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/infrastructure[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_forest           := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/forest[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_othernature      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/othernature[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_otherbuiltup     := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/otherbuiltup[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_residential      := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/residential[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_urbangreen       := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/urbangreen[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_water            := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/water[grid_rel];
+		attribute<float32>    avg_shr_LUtype_2012_neigh_1000r_diversity        := /Brondata/BBG/Avg_shr_LUtype_neigh/J2012/r1000/diversity[grid_rel];
 	}
 	
 	container ProbabilityMaps 
@@ -262,7 +261,7 @@ container Analyse : using = "eenheden;typeringen"
 		{
 			parameter<string> SectorName;
 			
-			attribute<float32> raw (NL_grid/domain):= ='
+			attribute<float32> raw (rdc_100m):= ='
 						MakeDefined(
 								ReadCoefficients/'+SectorName+'/Result/constant
 								+ Brondata/SpatialVars/DistTo_Airports_2019                                                      * ReadCoefficients/'+SectorName+'/Result/dist_airport_km_2019/ 1[km]
@@ -290,7 +289,7 @@ container Analyse : using = "eenheden;typeringen"
 								+ Brondata/SpatialVars/LU_simpson_diversity_index_2000                                           * ReadCoefficients/'+SectorName+'/Result/LU_simpson_diversity_index_2000
 						, 0f)';
 						
-			attribute<float32> exponentiated (NL_grid/domain):= exp(raw) / (1f + exp(raw));
+			attribute<float32> exponentiated (rdc_100m):= exp(raw) / (1f + exp(raw));
 		}
 		
 		container ReadCoefficients :=
@@ -343,23 +342,23 @@ container Analyse : using = "eenheden;typeringen"
 		{
 			container totale_opp_per_functie_perjaar :=
 			for_each_nedv(
-				typeringen/vbo_gebruiksdoel/name
-				, replace('union_data(typeringen/jaren96_11, '+AsItemList('PreBAG_PerJaar/'+typeringen/jaren96_11/name+'/preBAG_VBO/totale_opp_per_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel/name)
+				typeringen/vbo_gebruiksdoel_plus/name
+				, replace('union_data(typeringen/jaren96_11, '+AsItemList('PreBAG_PerJaar/'+typeringen/jaren96_11/name+'/preBAG_VBO/totale_opp_per_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel_plus/name)
 				, typeringen/jaren96_11
 				, m2
 			);
 			
 			container totale_footprint_per_functie_perjaar :=
 			for_each_nedv(
-				typeringen/vbo_gebruiksdoel/name
-				, replace('union_data(typeringen/jaren96_11, '+AsItemList('PreBAG_PerJaar/'+typeringen/jaren96_11/name+'/preBAG_Pand/Footprint_VBOOpp_per_vbo_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel/name)
+				typeringen/vbo_gebruiksdoel_plus/name
+				, replace('union_data(typeringen/jaren96_11, '+AsItemList('PreBAG_PerJaar/'+typeringen/jaren96_11/name+'/preBAG_Pand/Footprint_VBOOpp_per_vbo_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel_plus/name)
 				, typeringen/jaren96_11
 				, m2
 			);
 			container totale_count_per_functie_perjaar :=
 			for_each_nedv(
-				typeringen/vbo_gebruiksdoel/name
-				, replace('union_data(typeringen/jaren96_11, '+AsItemList('PreBAG_PerJaar/'+typeringen/jaren96_11/name+'/preBAG_VBO/totale_count_per_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel/name)
+				typeringen/vbo_gebruiksdoel_plus/name
+				, replace('union_data(typeringen/jaren96_11, '+AsItemList('PreBAG_PerJaar/'+typeringen/jaren96_11/name+'/preBAG_VBO/totale_count_per_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel_plus/name)
 				, typeringen/jaren96_11
 				, uint32
 			);
@@ -377,8 +376,8 @@ container Analyse : using = "eenheden;typeringen"
 				
 				container Footprint_VBOOpp_per_vbo_functie :=
 					for_each_nedv(
-						typeringen/vbo_gebruiksdoel/name
-						,'sum(((sum(preBAG_VBO/gebruiksdoel_class == typeringen/vbo_gebruiksdoel/V/'+typeringen/vbo_gebruiksdoel/name+' ? preBAG_VBO/oppervlakte_trunc[m2] : (0/0)[m2], preBAG_VBO/pand_rel)) / sum_vbo_opp) * footprint)'
+						typeringen/vbo_gebruiksdoel_plus/name
+						,'sum(((sum(preBAG_VBO/gebruiksdoel_plus_rel == typeringen/vbo_gebruiksdoel_plus/V/'+typeringen/vbo_gebruiksdoel_plus/name+' ? preBAG_VBO/oppervlakte_trunc[m2] : (0/0)[m2], preBAG_VBO/pand_rel)) / sum_vbo_opp) * footprint)'
 						, void
 						, float32
 					);
@@ -388,22 +387,22 @@ container Analyse : using = "eenheden;typeringen"
 			unit<uint32> preBAG_VBO := subset(IsDefined(preBAG_Pand/pand_rel))
 			{
 				attribute<geometries/rdc>   Geometry              := /Brondata/BAG/Snapshots/VBOs/Y2012/Src/vbo/geometry[nr_OrgEntity];
-				attribute<vbo_gebruiksdoel> gebruiksdoel_class    := /Brondata/BAG/Snapshots/VBOs/Y2012/Src/vbo/gebruiksdoel_class[nr_OrgEntity];
+				attribute<vbo_gebruiksdoel_plus> gebruiksdoel_plus_rel    := /Brondata/BAG/Snapshots/VBOs/Y2012/Src/vbo/gebruiksdoel_plus_rel[nr_OrgEntity];
 				attribute<uint32>           pand_rel              := preBAG_Pand/pand_rel[nr_OrgEntity];
 				attribute<m2>               oppervlakte_trunc := /Brondata/BAG/Snapshots/VBOs/Y2012/Src/vbo/oppervlakte_trunc[nr_OrgEntity][m2];
 				
 				container totale_opp_per_functie :=
 					for_each_nedv(
-						typeringen/vbo_gebruiksdoel/name
-						, 'sum(gebruiksdoel_class = vbo_gebruiksdoel/v/'+typeringen/vbo_gebruiksdoel/name+' ? oppervlakte_trunc : 0[m2])'
+						typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(gebruiksdoel_plus_rel = vbo_gebruiksdoel_plus/v/'+typeringen/vbo_gebruiksdoel_plus/name+' ? oppervlakte_trunc : 0[m2])'
 						, void
 						, m2
 					);
 					
 				container totale_count_per_functie :=
 					for_each_nedv(
-						typeringen/vbo_gebruiksdoel/name
-						, 'sum(gebruiksdoel_class = vbo_gebruiksdoel/v/'+typeringen/vbo_gebruiksdoel/name+' ? 1 : 0)'
+						typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(gebruiksdoel_plus_rel = vbo_gebruiksdoel_plus/v/'+typeringen/vbo_gebruiksdoel_plus/name+' ? 1 : 0)'
 						, void
 						, uint32
 					);
@@ -412,24 +411,24 @@ container Analyse : using = "eenheden;typeringen"
 		
 		container totale_opp_per_functie_perjaar :=
 		for_each_nedv(
-			typeringen/vbo_gebruiksdoel/name
-			, replace('union_data(typeringen/jaren, '+AsItemList('/Brondata/BAG/Snapshots/VBOs/'+typeringen/jaren/name+'/src/totale_opp_per_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel/name)
+			typeringen/vbo_gebruiksdoel_plus/name
+			, replace('union_data(typeringen/jaren, '+AsItemList('/Brondata/BAG/Snapshots/VBOs/'+typeringen/jaren/name+'/src/totale_opp_per_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel_plus/name)
 			, typeringen/jaren
 			, int32
 		);
 		
 		container totale_footprint_per_functie_perjaar :=
 		for_each_nedv(
-			typeringen/vbo_gebruiksdoel/name
-			, replace('union_data(typeringen/jaren, '+AsItemList('Brondata/BAG/Snapshots/Panden/'+typeringen/jaren/name+'/pand/pand_met_vbo_alle_functies/Totaal_Footprint_VBOOpp_per_vbo_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel/name)
+			typeringen/vbo_gebruiksdoel_plus/name
+			, replace('union_data(typeringen/jaren, '+AsItemList('Brondata/BAG/Snapshots/Panden/'+typeringen/jaren/name+'/pand/pand_met_vbo_alle_functies/Totaal_Footprint_VBOOpp_per_vbo_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel_plus/name)
 			, typeringen/jaren
 			, m2
 		);
 		
 		container totale_count_per_functie_perjaar :=
 		for_each_nedv(
-			typeringen/vbo_gebruiksdoel/name
-			, replace('union_data(typeringen/jaren, '+AsItemList('/Brondata/BAG/Snapshots/VBOs/'+typeringen/jaren/name+'/src/totale_count_per_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel/name)
+			typeringen/vbo_gebruiksdoel_plus/name
+			, replace('union_data(typeringen/jaren, '+AsItemList('/Brondata/BAG/Snapshots/VBOs/'+typeringen/jaren/name+'/src/totale_count_per_functie/@TYPE@')+')','@TYPE@', typeringen/vbo_gebruiksdoel_plus/name)
 			, typeringen/jaren
 			, uint32
 		);
@@ -523,6 +522,132 @@ container Analyse : using = "eenheden;typeringen"
 		unit<uint32> union_logies_vbos := ='union_unit('+AsItemList('/Brondata/BAG/Snapshots/VBOs/'+typeringen/jaren/name+'/Src/GebruiksdoelSets/logies/GebruiksdoelSet')+')'
 		{
 			attribute<geometries/rdc> geometry := ='union_data(., '+AsItemList('/Brondata/BAG/Snapshots/VBOs/'+typeringen/jaren/name+'/Src/GebruiksdoelSets/logies/GebruiksdoelSet/geometry')+')';
+		}
+	}
+	
+	
+	container AdditioneleVragenUpdate2025 : using = "eenheden;geometries"
+	{
+		parameter<string> LaatsteJaar   := '2023';
+		unit<uint32>      Panden_Y2012  := Brondata/BAG/Snapshots/panden/Y2012/pand/pand_met_vbo_alle_functies;
+		unit<uint32>      Vbos_Y2012    := Brondata/BAG/Snapshots/VBOs/Y2012/src/vbo;
+		unit<uint32>      Panden_Laatst := ='Brondata/BAG/Snapshots/panden/Y'+LaatsteJaar+'/pand/pand_met_vbo_alle_functies';
+		unit<uint32>      Vbos_Laatst   := ='Brondata/BAG/Snapshots/VBOs/Y'+LaatsteJaar+'/src/vbo';
+		unit<uint32>      LISA_Y2012    := Brondata/LISA/PerJaar/Y2012/FSS;
+		unit<uint32>      LISA_Laatst   := ='Brondata/LISA/PerJaar/Y'+LaatsteJaar+'/FSS';
+
+		parameter<string> Generate := 'Ready', ExplicitSuppliers = "=AsList(SubtreeNames/FullName, ';')";
+		unit<uint32> SubtreeNames := SubTree_PropValues(RuimteVoorWerken_Update2025,'FullName');
+		
+		container RuimteVoorWerken_Update2025
+		: StorageName = "%LocalDataProjDir%/Export/RuimteVoorWerken_Update2025.gpkg"
+		, StorageType = "gdalwrite.vect"
+		{
+			unit<uint32> Bedrijventerreinen_CBS_Y2012 := /Brondata/BBG_Reeks_1996_2017/Bedrijventerrein_Y2012
+			{
+				attribute<rdc>     geometry (poly) := /Brondata/BBG_Reeks_1996_2017/Bedrijventerrein_Y2012/geometry;
+				attribute<km2>     area_km2        := area(geometry, m2)[km2], Descr = "het oppervlak per bedrijventerrein in 2012.";
+				
+				container Footprint_perGebruiksdoel_2012 :=
+					for_each_nedv(
+						'Footprint_Y2012_'+typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(Panden_Y2012/Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+', point_in_polygon(Panden_Y2012/centroid, geometry))'
+						, .
+						, float32
+					), Descr = "footprint gesommeerd naar bedrijventerreinen, per functie binnen een pand verdeeld op basis van share vbo-opp binnen pand.";
+				container Footprint_perGebruiksdoel_Laatst :=
+					for_each_nedv(
+						'Footprint_Y'+LaatsteJaar+'_'+typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(Panden_Laatst/Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+', point_in_polygon(Panden_Laatst/centroid, geometry))'
+						, .
+						, float32
+					), Descr = "footprint gesommeerd naar bedrijventerreinen, per functie binnen een pand verdeeld op basis van share vbo-opp binnen pand.";
+					
+				container Opp_perGebruiksdoel_2012 :=
+					for_each_nedv(
+						'VBO_opp_Y2012_'+typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(Vbos_Y2012/gebruiksdoel_plus_rel == typeringen/vbo_gebruiksdoel_plus/v/'+typeringen/vbo_gebruiksdoel_plus/name+' ? Vbos_Y2012/oppervlakte_trunc : null_i, point_in_polygon(Vbos_Y2012/geometry, geometry))'
+						, .
+						, int32
+					), Descr = "vbo opp gesommeerd naar bedrijventerreinen, per functie";
+				container Opp_perGebruiksdoel_Laatst :=
+					for_each_nedv(
+						'VBO_opp_Y'+LaatsteJaar+'_'+typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(Vbos_Laatst/gebruiksdoel_plus_rel == typeringen/vbo_gebruiksdoel_plus/v/'+typeringen/vbo_gebruiksdoel_plus/name+' ? Vbos_Laatst/oppervlakte_trunc : null_i, point_in_polygon(Vbos_Laatst/geometry, geometry))'
+						, .
+						, int32
+					), Descr = "vbo opp gesommeerd naar bedrijventerreinen, per functie";
+					
+				container Banen_Y2012 :=
+					for_each_nedv(
+						'Banen_Y2012_'+TXLJobs7/name
+						, 'sum(LISA_Y2012/banen > 0d  && LISA_Y2012/TXLJobs7_rel == TXLJobs7/v/'+TXLJobs7/name+' ? int32(LISA_Y2012/banen) : 0i, point_in_polygon(LISA_Y2012/geometry, geometry))'
+						, .
+						, int32
+					), Descr = "aantal banen van bedrijven met meer dan 1 werknemer, gesommeerd naar bedrijventerreinen, per Tigris-sector";
+
+				container Banen_Laatst :=
+					for_each_nedv(
+						'Banen_Y'+LaatsteJaar+'_'+TXLJobs7/name
+						, 'sum(LISA_Laatst/banen > 0d  && LISA_Laatst/TXLJobs7_rel == TXLJobs7/v/'+TXLJobs7/name+' ? int32(LISA_Laatst/banen) : 0i, point_in_polygon(LISA_Laatst/geometry, geometry))'
+						, .
+						, int32
+					), Descr = "aantal banen van bedrijven met meer dan 1 werknemer, gesommeerd naar bedrijventerreinen, per Tigris-sector";
+
+			}
+			
+			unit<uint32> Bedrijventerreinen_IBIS_Y2012 := /Brondata/IBIS/Y2012/HeeftUitgegeven
+			{
+				attribute<rdc>     geometry (poly) := /Brondata/IBIS/Y2012/HeeftUitgegeven/geometry;
+				attribute<km2>     uitgegeven_km2  := /Brondata/IBIS/Y2012/HeeftUitgegeven/uitgegeven[km2];
+				attribute<km2>     area_km2        := area(geometry, m2)[km2], Descr = "het oppervlak per IBIS terrein in 2012.";
+				
+				container Footprint_perGebruiksdoel_2012 :=
+					for_each_nedv(
+						'Footprint_Y2012_'+typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(Panden_Y2012/Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+', point_in_polygon(Panden_Y2012/centroid, geometry))'
+						, .
+						, float32
+					), Descr = "footprint gesommeerd naar bedrijventerreinen, per functie binnen een pand verdeeld op basis van share vbo-opp binnen pand.";
+				container Footprint_perGebruiksdoel_Laatst :=
+					for_each_nedv(
+						'Footprint_Y'+LaatsteJaar+'_'+typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(Panden_Laatst/Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+', point_in_polygon(Panden_Laatst/centroid, geometry))'
+						, .
+						, float32
+					), Descr = "footprint gesommeerd naar bedrijventerreinen, per functie binnen een pand verdeeld op basis van share vbo-opp binnen pand.";
+					
+				container Opp_perGebruiksdoel_2012 :=
+					for_each_nedv(
+						'VBO_opp_Y2012_'+typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(Vbos_Y2012/gebruiksdoel_plus_rel == typeringen/vbo_gebruiksdoel_plus/v/'+typeringen/vbo_gebruiksdoel_plus/name+' ? Vbos_Y2012/oppervlakte_trunc : null_i, point_in_polygon(Vbos_Y2012/geometry, geometry))'
+						, .
+						, int32
+					), Descr = "vbo opp gesommeerd naar bedrijventerreinen, per functie";
+				container Opp_perGebruiksdoel_Laatst :=
+					for_each_nedv(
+						'VBO_opp_Y'+LaatsteJaar+'_'+typeringen/vbo_gebruiksdoel_plus/name
+						, 'sum(Vbos_Laatst/gebruiksdoel_plus_rel == typeringen/vbo_gebruiksdoel_plus/v/'+typeringen/vbo_gebruiksdoel_plus/name+' ? Vbos_Laatst/oppervlakte_trunc : null_i, point_in_polygon(Vbos_Laatst/geometry, geometry))'
+						, .
+						, int32
+					), Descr = "vbo opp gesommeerd naar bedrijventerreinen, per functie";
+					
+				container Banen_Y2012 :=
+					for_each_nedv(
+						'Banen_Y2012_'+TXLJobs7/name
+						, 'sum(int32(LISA_Y2012/banen > 0d ? LISA_Y2012/banen : 0d) * int32(LISA_Y2012/TXLJobs7_rel == '+string(id(TXLJobs7))+'[TXLJobs7]), point_in_polygon(LISA_Y2012/geometry, geometry))'
+						, .
+						, int32
+					), Descr = "aantal banen van bedrijven met meer dan 1 werknemer, gesommeerd naar bedrijventerreinen, per Tigris-sector";
+
+				container Banen_Laatst :=
+					for_each_nedv(
+						'Banen_Y'+LaatsteJaar+'_'+TXLJobs7/name
+						, 'sum(int32(LISA_Laatst/banen > 0d ? LISA_Laatst/banen : 0d) * int32(LISA_Laatst/TXLJobs7_rel == '+string(id(TXLJobs7))+'[TXLJobs7]), point_in_polygon(LISA_Laatst/geometry, geometry))'
+						, .
+						, int32
+					), Descr = "aantal banen van bedrijven met meer dan 1 werknemer, gesommeerd naar bedrijventerreinen, per Tigris-sector";
+			}
 		}
 	}
 }

@@ -1,18 +1,22 @@
 container Ruimtebeslag
 { 
+	container ModelParameters
+	{
+		parameter<uint32>    LISA_FileYear                 :=  2023;
+		// parameter<uint32>    LISA_StartYear                :=  2023, IntegrityCheck = "LISA_StartYear <= LISA_FileYear"; 
+	}
+	
 	#include <eenheden.dms>
 	#include <typeringen.dms>
 	
-	container geometries: isHidden = "True", DialogType = "ishidden"
+	container geometries: using = "eenheden"
 	{
-		unit<fpoint> rdc_base
-		:	Format     = "EPSG:28992"
-		, 	DialogData = "ngr_layer"; // wms achtergrondlaag voor kaarten met rd coordinaten
-		unit<fpoint> rdc     := range(rdc_base, point(0f,300000f), point(280000f,625000f));
-		unit<ipoint> rdc_mm := gridset(rdc, point(0.001,0.001), point(0.0, 0.0), ipoint);
+		unit<fpoint> rdc_base   : DialogData = "ngr_layer", SpatialReference = "EPSG:28992";
+		unit<fpoint> rdc       := range(rdc_base, point_xy(x_min, y_min,rdc_base), point_xy(x_max, y_max,rdc_base));
+		unit<ipoint> rdc_mm    := gridset(rdc, point(0.001,0.001), point(0.0, 0.0), ipoint);
 		
 		unit<dpoint> LambertEA: Descr = "ETRS_1989_LAEA_52N_10E" // "coords from SW to NE";
-		, Format = "EPSG:3035"; // EPSG code for Lambert EA
+		, SpatialReference = "EPSG:3035"; // EPSG code for Lambert EA
 		
 		#include <ngr_layer.dms>
 		
@@ -43,9 +47,79 @@ container Ruimtebeslag
 				}
 			}
 		}
+		
+		unit<ipoint> rdc_5m    := perGridsize/size_5m/domain;
+		unit<ipoint> rdc_10m   := perGridsize/size_10m/domain;
+		unit<ipoint> rdc_25m   := perGridsize/size_25m/domain;
+		unit<ipoint> rdc_100m  := perGridsize/size_100m/domain;
+		unit<uint32> Gridsizes : nrofrows = 4
+		{
+			attribute<string>  size_str : ['5', '10', '25', '100'];
+			attribute<m>       size     := size_str[m];
+			
+			attribute<string>  name0    := 'size_'+string(size)+'m';
+			attribute<string>  name     := replace(name0, '2.5', '2_5');
+		}
+		container perGridsize := for_each_ne(Gridsizes/name, 'Create_GridDomain_T('+string(Gridsizes/size)+'[m])');
+		
+		parameter<m> x_min     := 0[m];
+		parameter<m> x_max     := 280000[m];
+		parameter<m> y_min     := 300000[m];
+		parameter<m> y_max     := 625000[m];
+		
+		Template Create_GridDomain_T
+		{
+			parameter<m> gridsize;
+			parameter<int32> nr_cols := int32((x_max - x_min) / gridsize);
+			parameter<int32> nr_rows := int32((y_max - y_min) / gridsize);
+			
+			unit<ipoint> domain :=
+				range(
+					 gridset(
+						 rdc
+						,point_yx(-gridsize, gridsize, rdc)
+						,point_yx(y_max, x_min, rdc)
+						,ipoint
+					)
+					,point_yx(0i, 0i)
+					,point_yx(nr_rows, nr_cols)
+				),	DialogData = "rdc"
+			{
+				parameter<m>                    gridsize        := ../gridsize;
+				parameter<int32>                nr_cols         := ../nr_cols;
+				attribute<rdc>                  point           := mapping(., rdc) + point_yx(-0.5f * gridsize, 0.5f * gridsize, rdc);
+				unit<uint32>                    id_key          := range(uint32, 0, uint32(#domain));
+				attribute<uint32>               id_rel          := value(uint32(pointrow(id(.))) * uint32(nr_cols) + uint32(pointcol(id(.))), id_key);
+				
+				attribute<rdc> locatie := id(.)[rdc];
+				
+				attribute<rdc_5m>               rdc_5m_rel      := mapping(., rdc_5m);
+				attribute<rdc_10m>              rdc_10m_rel     := mapping(., rdc_10m);
+				attribute<rdc_25m>              rdc_25m_rel     := mapping(., rdc_25m);
+				attribute<rdc_100m>             rdc_100m_rel    := mapping(., rdc_100m);
+				// attribute<rdc_250m>             rdc_250m_rel    := mapping(., rdc_250m);
+				// attribute<rdc_500m>             rdc_500m_rel    := mapping(., rdc_500m);
+				
+				// parameter<m2>               NrMeter2PerCell := NrHaPerCell[m2];
+				// parameter<ha>                   NrHaPerCell     := convert(gridsize * gridsize, ha);
+				// parameter<km2>                  NrKm2PerCell    := NrHaPerCell[km2];
+				// attribute<bool>                 IsNederland     := IsDefined(poly2grid(SourceData/RegioIndelingen/NL/geometry, .));
+				attribute<bool>                 IsStudyArea     := IsDefined(poly2grid(/Brondata/regios/Buurten/src_2019/IsLand/geometry, .));
+				// attribute<bool>                 IsStudyArea     := IsDefined(/Brondata/regios/Buurten/src_2019/IsLand/grid);
+			}
+			
+			unit<uint32> points := select_uint32_with_org_rel(isDefined(domain/point) && domain/IsStudyArea)
+			{
+				attribute<uint32>               id_rel    := org_rel -> id_rel;
+				attribute<rdc>                  geometry  := org_rel -> point;
+				attribute<float32>              x         := PointCol(geometry);
+				attribute<float32>              y         := PointRow(geometry);
+				attribute<domain>               grid_rel  := geometry[domain];	
+			}
+		}
 	}
 	
-	container NL_grid: isHidden = "True", Using = "Eenheden;geometries"
+/* 	container NL_grid: isHidden = "True", Using = "Eenheden;geometries"
 	{
 		parameter<m> gridsize := 100[m];
 		parameter<m> gridsize_10m := 10[m];
@@ -57,11 +131,6 @@ container Ruimtebeslag
 		parameter<m> x_max := 280000[m];
 		parameter<m> y_min := 300000[m];
 		parameter<m> y_max := 625000[m];
-		
-		// parameter<m> x_min := 100000[m];
-		// parameter<m> x_max := 150000[m];
-		// parameter<m> y_min := 500000[m];
-		// parameter<m> y_max := 550000[m];
 
 		parameter<int16> nr_cols := int16((x_max - x_min) / gridsize);
 		parameter<int16> nr_rows := int16((y_max - y_min) / gridsize);
@@ -144,11 +213,12 @@ container Ruimtebeslag
 			attribute<float32>          x         := PointCol(geometry);
 			attribute<float32>          y         := PointRow(geometry);
 			
-			attribute<NL_grid/domain>   NL_grid_domain_rel  := geometry[NL_grid/domain];	
+			attribute<rdc_100m>   NL_grid_domain_rel  := geometry[rdc_100m];	
 		}
 	}
-
+ */
 	#include <brondata.dms>
 	#include <analyse.dms>
 	#include <ConfigSettings.dms>
+	#include <ExportSettings.dms>
 }
