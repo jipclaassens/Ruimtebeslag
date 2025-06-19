@@ -581,7 +581,7 @@ container Analyse : using = "eenheden;typeringen"
 				container Banen_Y2012 :=
 					for_each_nedv(
 						'Banen_Y2012_'+TXLJobs7/name
-						, 'sum(LISA_Y2012/banen > 0d  && LISA_Y2012/TXLJobs7_rel == TXLJobs7/v/'+TXLJobs7/name+' ? int32(LISA_Y2012/banen) : 0i, point_in_polygon(LISA_Y2012/geometry, geometry))'
+						, 'sum(LISA_Y2012/banen > 0  && LISA_Y2012/TXLJobs7_rel == TXLJobs7/v/'+TXLJobs7/name+' ? int32(LISA_Y2012/banen) : 0i, point_in_polygon(LISA_Y2012/geometry, geometry))'
 						, .
 						, int32
 					), Descr = "aantal banen van bedrijven met meer dan 1 werknemer, gesommeerd naar bedrijventerreinen, per Tigris-sector";
@@ -589,7 +589,7 @@ container Analyse : using = "eenheden;typeringen"
 				container Banen_Laatst :=
 					for_each_nedv(
 						'Banen_Y'+LaatsteJaar+'_'+TXLJobs7/name
-						, 'sum(LISA_Laatst/banen > 0d  && LISA_Laatst/TXLJobs7_rel == TXLJobs7/v/'+TXLJobs7/name+' ? int32(LISA_Laatst/banen) : 0i, point_in_polygon(LISA_Laatst/geometry, geometry))'
+						, 'sum(LISA_Laatst/banen > 0  && LISA_Laatst/TXLJobs7_rel == TXLJobs7/v/'+TXLJobs7/name+' ? int32(LISA_Laatst/banen) : 0i, point_in_polygon(LISA_Laatst/geometry, geometry))'
 						, .
 						, int32
 					), Descr = "aantal banen van bedrijven met meer dan 1 werknemer, gesommeerd naar bedrijventerreinen, per Tigris-sector";
@@ -635,7 +635,7 @@ container Analyse : using = "eenheden;typeringen"
 				container Banen_Y2012 :=
 					for_each_nedv(
 						'Banen_Y2012_'+TXLJobs7/name
-						, 'sum(int32(LISA_Y2012/banen > 0d ? LISA_Y2012/banen : 0d) * int32(LISA_Y2012/TXLJobs7_rel == '+string(id(TXLJobs7))+'[TXLJobs7]), point_in_polygon(LISA_Y2012/geometry, geometry))'
+						, 'sum(LISA_Y2012/banen > 0  && LISA_Y2012/TXLJobs7_rel == TXLJobs7/v/'+TXLJobs7/name+' ? int32(LISA_Y2012/banen) : 0i, point_in_polygon(LISA_Y2012/geometry, geometry))'
 						, .
 						, int32
 					), Descr = "aantal banen van bedrijven met meer dan 1 werknemer, gesommeerd naar bedrijventerreinen, per Tigris-sector";
@@ -643,7 +643,7 @@ container Analyse : using = "eenheden;typeringen"
 				container Banen_Laatst :=
 					for_each_nedv(
 						'Banen_Y'+LaatsteJaar+'_'+TXLJobs7/name
-						, 'sum(int32(LISA_Laatst/banen > 0d ? LISA_Laatst/banen : 0d) * int32(LISA_Laatst/TXLJobs7_rel == '+string(id(TXLJobs7))+'[TXLJobs7]), point_in_polygon(LISA_Laatst/geometry, geometry))'
+						, 'sum(LISA_Laatst/banen > 0  && LISA_Laatst/TXLJobs7_rel == TXLJobs7/v/'+TXLJobs7/name+' ? int32(LISA_Laatst/banen) : 0i, point_in_polygon(LISA_Laatst/geometry, geometry))'
 						, .
 						, int32
 					), Descr = "aantal banen van bedrijven met meer dan 1 werknemer, gesommeerd naar bedrijventerreinen, per Tigris-sector";

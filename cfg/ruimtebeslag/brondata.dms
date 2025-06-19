@@ -693,7 +693,7 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 			, StorageReadOnly = "true"
 			{
 				attribute<rdc>                            geometry;
-				attribute<float64>                        banen;
+				attribute<uint32>                        banen;
 				// attribute<string>                         LISAnr;
 				// attribute<string>                         naam;
 				// attribute<string>                         postcode;
