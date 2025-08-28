@@ -6,12 +6,13 @@ container regios : using = "geometries"
 		:	StorageName     = "%AltSourceDataDir%/CBS/Nederland.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
+		, 	DialogData = "rdc"
 		{
 			attribute<geometries/rdc> geometry (polygon) ;
 			attribute<string>         name               := const('NL',.);
-			attribute<src> grid   (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
-			attribute<bool> 	IsNederland (NL_grid/domain) := IsDefined(grid);
-			attribute<uint8> IsNederland_8 (NL_grid/domain) := IsNederland ? 1[uint8] : (0/0)[uint8];
+			attribute<src> grid   (rdc_100m) := poly2grid(geometry, rdc_100m);
+			attribute<bool> 	IsNederland (rdc_100m) := IsDefined(grid);
+			attribute<uint8> IsNederland_8 (rdc_100m) := IsNederland ? 1[uint8] : (0/0)[uint8];
 		}
 		
 		unit<uint32> NL_BoundingBox : nrofrows = 1
@@ -56,8 +57,8 @@ container regios : using = "geometries"
 			,	StorageReadOnly = "True"
 			{
 				attribute<geometries/rdc> geometry (polygon) ;
-				attribute<src> grid   (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
-				attribute<bool> IsRandstad   (NL_grid/domain) := grid == 1;
+				attribute<src> grid   (rdc_100m) := poly2grid(geometry, rdc_100m);
+				attribute<bool> IsRandstad   (rdc_100m) := grid == 1;
 			}
 	}
 	container provincies
@@ -69,9 +70,9 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc>   geometry  (polygon) ;
 			attribute<string>           label                      := statnaam ;
-			attribute<src_2012>         grid      (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<src_2012>         grid      (rdc_100m) := poly2grid(geometry, rdc_100m);
 			attribute<procent>	bouwkosten_regionaal : [.95, .93, .92, .93, .96, .94, 1, .99, 1, .95, .93, .90];
-			attribute<procent>	bouwkosten_regionaal_grid (NL_grid/domain) := bouwkosten_regionaal[grid];
+			attribute<procent>	bouwkosten_regionaal_grid (rdc_100m) := bouwkosten_regionaal[grid];
 		}
 	}
 	container grootstedelijke_agglomeratie
@@ -83,9 +84,9 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc>   geometry  (polygon) ;
 			attribute<string>           label                      := statnaam ;
-			attribute<src_2012>         grid      (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<src_2012>         grid      (rdc_100m) := poly2grid(geometry, rdc_100m);
 			attribute<procent>	bouwkosten_stedelijk : [1, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04, 1.04];
-			attribute<procent>	bouwkosten_stedelijk_grid (NL_grid/domain) := bouwkosten_stedelijk[grid];
+			attribute<procent>	bouwkosten_stedelijk_grid (rdc_100m) := bouwkosten_stedelijk[grid];
 		}
 	}
 	container corop
@@ -97,9 +98,9 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc>   geometry  (polygon) ;
 			attribute<string>           label                      := statnaam ;
-			attribute<src_2012>         grid      (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<src_2012>         grid      (rdc_100m) := poly2grid(geometry, rdc_100m);
 			attribute<procent>	bouwkosten_grensgebieden : [0.96,0.96,1,1,1,1,1,0.96,1,1,1,0.96,1,0.96,0.96,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
-			attribute<procent>	bouwkosten_grensgebieden_grid  (NL_grid/domain) := bouwkosten_grensgebieden[grid];
+			attribute<procent>	bouwkosten_grensgebieden_grid  (rdc_100m) := bouwkosten_grensgebieden[grid];
 			attribute<uint32>   corop_code := id(.) + 1;
 			
 			attribute<float32>  avg_prijsm2_in2012 := rjoin(corop_code, /Brondata/NVM/Avg_prijsm2_perCOROP_in2012/corop[uint32], /Brondata/NVM/Avg_prijsm2_perCOROP_in2012/avg_pm2[float32]);
@@ -116,12 +117,12 @@ container regios : using = "geometries"
 				attribute<geometries/rdc> geometry (poly);
 				attribute<string>         label: DialogType = "LabelText";
 				attribute<string>          name                  := replace(label, '/', '_', '-', '_', ' ', '_','(','',')','','â','a','ú','','''','',',','');
-				attribute<.>              grid   (NL_grid/domain);
+				attribute<.>              grid   (rdc_100m);
 				attribute<string>         code;
 				attribute<string>         GM_CODE  := 'GM'+code;
 				attribute<string>         statcode := GM_CODE;
 				attribute<bool>           IsUrbanCore      := IsDefined(rlookup(GM_CODE, UrbanCores/GM_CODE));
-				attribute<bool>           IsUrbanCore_grid (NL_grid/domain) := IsUrbanCore[grid];
+				attribute<bool>           IsUrbanCore_grid (rdc_100m) := IsUrbanCore[grid];
 				attribute<geometries/rdc> GewogenAdressenCentroid;
 				
 				unit<uint32> UrbanCores  := ='subset('+AsList('GM_CODE == '+quote(UrbanCores_list/GM_CODE)+' ','||')+')'
@@ -246,7 +247,7 @@ container regios : using = "geometries"
 			{
 				attribute<geometries/rdc> geometry (polygon) ;
 				attribute<string>         label     := statnaam;
-				attribute<.>              grid   (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+				attribute<.>              grid   (rdc_100m) := poly2grid(geometry, rdc_100m);
 			}
 	
 			unit<uint32> j2016 // hierin zijn gemeentes NIET uniek, door zee strook...
@@ -256,7 +257,7 @@ container regios : using = "geometries"
 			{
 				attribute<geometries/rdc> geometry (polygon) ;
 				attribute<string>         label := GM_NAAM;
-				attribute<.>              grid   (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+				attribute<.>              grid   (rdc_100m) := poly2grid(geometry, rdc_100m);
 			}
 			
 			unit<uint32> j2015 // hierin zijn gemeentes NIET uniek, door zee strook...
@@ -266,7 +267,7 @@ container regios : using = "geometries"
 			{
 				attribute<geometries/rdc>  geometry (poly);
 				attribute<string>          label                 := GM_NAAM;
-				attribute<.>               grid (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+				attribute<.>               grid (rdc_100m) := poly2grid(geometry, rdc_100m);
 				attribute<regios/MRA/MRA8> MRA8_rel              := rjoin(name, regios/MRA/GemMRA8/gem_name, regios/MRA/GemMRA8/MRA8_rel);
 				
 				attribute<string>          name                  := replace(label, '/', '_', '-', '_', ' ', '_');
@@ -306,7 +307,7 @@ container regios : using = "geometries"
 				attribute<string> 		name  				:= rjoin(values, gem_src/GM_CODE, gem_src/GM_NAAM);
 				attribute<string> 		label 				:= name;
 				attribute<string>		GM_CODE			:= rjoin(values, gem_src/GM_CODE, gem_src/GM_CODE);
-				attribute<.> 		grid   (NL_grid/domain)		:= poly2grid(geometry, NL_grid/domain);
+				attribute<.> 		grid   (rdc_100m)		:= poly2grid(geometry, rdc_100m);
 				attribute<.>   		buurt_gem_rel (regios/buurten/src_2012) := point_in_polygon(regios/buurten/src_2012/buurt_centroid, geometry);
 				attribute<.>   		pc4_gem_rel	 (regios/Postcode_gebieden/Postcode4) := point_in_polygon(regios/Postcode_gebieden/Postcode4/pc4_centroid, 	regios/gemeenten/gem_2012/gem_uq/geometry);
 				
@@ -334,7 +335,7 @@ container regios : using = "geometries"
 						,(1)[procent]
 					);
 				
-				attribute<procent>	bouwkosten_wadden_grid  (NL_grid/domain) := bouwkosten_wadden[grid];
+				attribute<procent>	bouwkosten_wadden_grid  (rdc_100m) := bouwkosten_wadden[grid];
 			}
 		}
 	}
@@ -347,7 +348,7 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc> geometry (polygon) ;
 			attribute<string>         label := NVMREG_NAA ;
-			attribute<.>              grid   (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<.>              grid   (rdc_100m) := poly2grid(geometry, rdc_100m);
 		}
 	}
 	container buurten
@@ -359,7 +360,7 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc>                     geometry (polygon);
 			attribute<string>                             label                      := BU_NAAM;
-			attribute<.>                                  grid (NL_grid/domain)      := poly2grid(geometry, NL_grid/domain);
+			attribute<.>                                  grid (rdc_100m)      := poly2grid(geometry, rdc_100m);
 			// attribute<uint32>                             woz                        := rjoin(BU_CODE, woz_buurt/woz_2012/CODERING, uint32(woz_buurt/woz_2012/GEMIDDELDE_WONINGWAARDE));
 			attribute<geometries/rdc>                     buurt_centroid (src_2012)  := centroid_or_mid(geometry);
 			attribute<regios/gemeenten/gem_2012/gem_uq>   buurt_gem_rel              := point_in_polygon(buurt_centroid, regios/gemeenten/gem_2012/gem_uq/geometry);
@@ -373,7 +374,7 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc>   geometry (polygon);
 			attribute<string>           label                     := BU_NAAM ;
-			attribute<.>                grid (NL_grid/domain)     := poly2grid(geometry, NL_grid/domain);
+			attribute<.>                grid (rdc_100m)     := poly2grid(geometry, rdc_100m);
 			attribute<uint32>           woz                       := rjoin(BU_CODE, woz_buurt/woz_2016/CODERING, uint32(woz_buurt/woz_2016/GEMIDDELDE_WONINGWAARDE));
 		}
 		unit<uint32> src_2019
@@ -383,13 +384,13 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc>   geometry (polygon);
 			attribute<string>           label                     := BU_NAAM ;
-			attribute<.>                grid (NL_grid/domain)     := poly2grid(geometry, NL_grid/domain);
+			attribute<.>                grid (rdc_100m)     := poly2grid(geometry, rdc_100m);
 			
 			unit<uint32> IsLand := subset(WATER == 'NEE')
 			{
 				attribute<geometries/rdc>      geometry (poly) := ../geometry[nr_OrgEntity];
 				parameter<geometries/rdc_mm>   union (poly) := union_polygon(geometry[geometries/rdc_mm]);
-				attribute<.>                   grid (NL_grid/domain)     := poly2grid(geometry, NL_grid/domain);
+				attribute<.>                   grid (rdc_100m)     := poly2grid(geometry, rdc_100m);
 			}
 		}
 	}
@@ -402,7 +403,7 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc>   geometry  (polygon) ;
 			attribute<string>           label                      := WK_NAAM ;
-			attribute<.>                grid      (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<.>                grid      (rdc_100m) := poly2grid(geometry, rdc_100m);
 			// attribute<uint32>           woz                        := rjoin(WK_CODE, woz_buurt/woz_2012/CODERING, uint32(woz_buurt/woz_2012/GEMIDDELDE_WONINGWAARDE));
 		}
 		unit<uint32> src_2016 
@@ -412,7 +413,7 @@ container regios : using = "geometries"
 		{
 			attribute<geometries/rdc>   geometry  (polygon) ;
 			attribute<string>           label                      := WK_NAAM ;
-			attribute<.>                grid      (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<.>                grid      (rdc_100m) := poly2grid(geometry, rdc_100m);
 			// attribute<uint32>           woz                        := rjoin(WK_CODE, woz_buurt/woz_2016/CODERING, uint32(woz_buurt/woz_2016/GEMIDDELDE_WONINGWAARDE));
 		}
 		unit<uint32> src_2018 
@@ -425,7 +426,7 @@ container regios : using = "geometries"
 			attribute<string>           label                      := WK_NAAM ;
 			attribute<string>           WK_NAAM;
 			attribute<string>           WK_CODE;
-			attribute<.>                grid      (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<.>                grid      (rdc_100m) := poly2grid(geometry, rdc_100m);
 			
 			attribute<uint32>            Kerncijfers_rel := rlookup(WK_CODE, CBS_kerncijfers/gwb_code_10);
 			
@@ -475,7 +476,7 @@ container regios : using = "geometries"
 			
 			attribute<geometries/rdc>   centroid                   := centroid_or_mid(geometry);
 			attribute<string>           label                      := WK_NAAM ;
-			attribute<.>                grid      (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<.>                grid      (rdc_100m) := poly2grid(geometry, rdc_100m);
 			attribute<uint32>           aggl_rel                   := point_in_polygon(centroid, /Brondata/regios/gemeenten/gem_src/j2019/Agglomeration_uq/Geometry);
 
 			unit<uint32> BuurtInAggl := subset(IsDefined(aggl_rel))
@@ -574,7 +575,7 @@ container regios : using = "geometries"
 		{
 			attribute<rdc>                  geometry  (polygon) ;
 			attribute<string>               label                       := string(PC4) ;
-			// attribute<.>                    grid      (NL_grid/domain)  := poly2grid(geometry, NL_grid/domain);
+			// attribute<.>                    grid      (rdc_100m)  := poly2grid(geometry, rdc_100m);
 			attribute<rdc>                  pc4_centroid                := centroid_or_mid(geometry);
 			// attribute<string>               GM_CODE                     := rjoin(pc4_gem_rel, BronData/regios/gemeenten/gem_2012/gem_uq/id, BronData/regios/gemeenten/gem_2012/gem_uq/GM_CODE);
 			attribute<uint32>               id                          := id(.);
@@ -582,7 +583,7 @@ container regios : using = "geometries"
 			// attribute<regios/gemeenten/gem_2012/gem_uq>  pc4_gem_rel    := point_in_polygon(pc4_centroid, regios/gemeenten/gem_2012/gem_uq/geometry);
 			
 			// attribute<float32>              landprice := rjoin(name, Overig/landprice_pc4_2007/PC4code, Overig/landprice_pc4_2007/landprice);
-			// attribute<float32>              landprice_grid (NL_grid/domain) := landprice[grid];
+			// attribute<float32>              landprice_grid (rdc_100m) := landprice[grid];
 			
 			attribute<float32>              pc4_price_coeff             := rjoin(id, uint32(Brondata/NVM/PC4_coefficients/ReadFSS/PC4), exp(float32(Brondata/NVM/PC4_coefficients/ReadFSS/estimate)));
 			
@@ -594,7 +595,7 @@ container regios : using = "geometries"
 		// {
 			// attribute<rdc>   	geometry  (polygon) ;
 			// attribute<string>           		label                      	:= POSTCODE ;
-			// attribute<Postcode6>         	grid      (NL_grid/domain) 	:= poly2grid(geometry, NL_grid/domain);
+			// attribute<Postcode6>         	grid      (rdc_100m) 	:= poly2grid(geometry, rdc_100m);
 		// }
 		
 		
@@ -605,7 +606,7 @@ container regios : using = "geometries"
 			attribute<rdc>             geometry;
 			attribute<string>          PC6;
 			attribute<string>          label                 : DialogType = "LabelText";
-			attribute<.>               grid (NL_grid/domain) := poly2grid(geometry, NL_grid/domain);
+			attribute<.>               grid (rdc_100m) := poly2grid(geometry, rdc_100m);
 		}
 		
 		unit<uint32> Postcode6_areas
@@ -635,7 +636,7 @@ container regios : using = "geometries"
 			attribute<string>                     PC4;
 			attribute<string>                     label                   : DialogType = "LabelText";
 			
-			attribute<.>                          grid  (NL_grid/domain)  := poly2grid(geometry, NL_grid/domain);
+			attribute<.>                          grid  (rdc_100m)  := poly2grid(geometry, rdc_100m);
 			attribute<rdc>                        pc4_centroid            := centroid_or_mid(geometry);
 			attribute<string>                     GM_CODE                 := rjoin(pc4_gem_rel, gemeenten/gem_2012/gem_uq/id, gemeenten/gem_2012/gem_uq/GM_CODE);
 			attribute<string>                     name                    := label;
@@ -643,7 +644,7 @@ container regios : using = "geometries"
 			attribute<regios/MRA/MRA1>                   mra_rel                 := point_in_polygon(pc4_centroid, regios/MRA/MRA1/Geometry);
 			
 			attribute<float32>                    landprice               := rjoin(name, Overig/landprice_pc4_2007/PC4code, Overig/landprice_pc4_2007/landprice);
-			attribute<float32>                    landprice_grid (NL_grid/domain) := landprice[grid];
+			attribute<float32>                    landprice_grid (rdc_100m) := landprice[grid];
 			
 			unit<uint32> MRA := subset(IsDefined(MRA_rel))
 			{

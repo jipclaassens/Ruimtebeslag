@@ -8,6 +8,7 @@ container eenheden: isHidden = "True"
 	unit<float32>  		m               := BaseUnit('Meter', float32);
 	unit<float32>  		km              := 1000f * m;
 	unit<float32>   	m2            	:= m * m;
+	unit<float32>   	km2            	:= km * km;
 	unit<int32>     	mm              := m / 1000;
 	unit<int32>     	mm2            	:= mm * mm;
 	unit<int32>     	vbo             := BaseUnit('Verblijfsobject', int32);

@@ -52,6 +52,40 @@ container typeringen: isHidden = "True", using = "eenheden"
 			attribute<uint32> BrushColor   := ../BrushColor[nr_OrgEntity], DialogType = "BrushColor";
 		}
 	}
+	// unit<uint8> vbo_plus : nrofrows = 3
+	// {
+		// attribute<string> label : ['logistiekfunctie','utiliteit combi-functie','niet woon'];
+		// attribute<string> name  : ['logistiek','utiliteit_combi', 'niet_woon'];
+	// }
+	unit<uint8> vbo_plus : nrofrows = 1
+	{
+		attribute<string> label : ['utiliteit combi-functie'];
+		attribute<string> name  : ['utiliteit_combi'];
+	}
+	unit<uint8> vbo_gebruiksdoel_plus := union_unit_uint8(vbo_gebruiksdoel, vbo_plus)
+	{
+		attribute<string> name      := union_data(., vbo_gebruiksdoel/name, vbo_plus/name);
+		attribute<string> label     := union_data(., vbo_gebruiksdoel/label, vbo_plus/label);
+		
+		attribute<Actor/Jobs6> jobs6_rel := union_data(.
+			,Actor/Jobs6/V/Ov_consumentendiensten // 'bijeenkomstfunctie',
+			,Actor/Jobs6/V/Overheid_kw_diensten   // 'celfunctie',
+			,Actor/Jobs6/V/Overheid_kw_diensten   // 'gezondheidszorgfunctie',
+			,Actor/Jobs6/V/Nijverheid             // 'industriefunctie',
+			,Actor/Jobs6/V/Zak_dienstverlening    // 'kantoorfunctie',
+			,Actor/Jobs6/V/Ov_consumentendiensten // 'logiesfunctie',
+			,Actor/Jobs6/V/Overheid_kw_diensten   // 'onderwijsfunctie',
+			,(0b/0b)[Actor/Jobs6]                 // 'overige gebruiksfunctie',
+			,Actor/Jobs6/V/Ov_consumentendiensten // 'sportfunctie',
+			,Actor/Jobs6/V/Detailhandel           // 'winkelfunctie',
+			,(0b/0b)[Actor/Jobs6]                 // 'woonfunctie'
+			// ,Actor/Jobs6/V/logistiek              // 'logistiek
+			,Actor/Jobs6/V/Nijverheid             // 'util combi
+			// ,(0b/0b)[Actor/Jobs6]                 // 'niet_woon'
+		);
+		
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
+	}
 	
 		unit<uint8> type_woonpand_src: nrofrows = 6
 	{
@@ -208,7 +242,7 @@ container typeringen: isHidden = "True", using = "eenheden"
 	
 	
 	unit<uint32> SBI08
-	:  StorageName = "%RSL_DataDir%/Grondgebruik/SBI2008_2018_TIGRIS_sector.csv"
+	:  StorageName = "%RSO_DataDir%/Vastgoed/SBI2008_2018_TIGRIS_sector.csv"
 	,  StorageType = "gdal.vect"
 	,  StorageReadOnly = "True" 
 	{
@@ -238,6 +272,15 @@ container typeringen: isHidden = "True", using = "eenheden"
 								];
 		attribute<string> Label:= name, DialogType = "LabelText";
 		container V := for_each_nedv(name, 'value('+string(id(.))+', ..)', void, .);
+	}
+	
+	unit<uint8> BBG_EK := range(uint8,uint8(0),uint8(84))
+	{
+		attribute<string>    Label       := BBG/Label[CBSKlasseNr];
+		attribute<string>    name            := AsItemName(label);
+		attribute<BBG>       CBSKlasseNr := invert(BBG/bbg_ek_rel);
+		
+		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
 	}
 	
 	unit<uint8> BBG: NrOfRows = 39
@@ -288,8 +331,8 @@ container typeringen: isHidden = "True", using = "eenheden"
 				'90','Buitenland',                       '255','255','255', '0', '1','0','9' , '4','0','0'
 			]; 
 		}
-		attribute<uint8>       id              := id(.);
-		attribute<uint8>        bbg_ek          := Elements/Text[value(UInt32(ID(.))* nrAttr + 0, Elements)][uint8];
+		attribute<uint8>        id              := id(.);
+		attribute<BBG_EK>       bbg_ek_rel      := Elements/Text[value(UInt32(ID(.))* nrAttr + 0, Elements)][BBG_EK];
 		attribute<string>       label           := Elements/Text[value(UInt32(ID(.))* nrAttr + 1, Elements)], DialogType = "LabelText";
 		attribute<uint8>        r               := Elements/Text[value(UInt32(ID(.))* nrAttr + 2, Elements)][uint8];
 		attribute<uint8>        g               := Elements/Text[value(UInt32(ID(.))* nrAttr + 3, Elements)][uint8];
@@ -304,7 +347,8 @@ container typeringen: isHidden = "True", using = "eenheden"
 		attribute<uint8>        gg_12k_rel      := Elements/Text[value(UInt32(ID(.))* nrAttr + 11, Elements)][uint8];
 		attribute<string>       gg_RuimtebeslagRapport_name := gg_RuimtebeslagRapport/name[gg_RuimtebeslagRapport_rel];
 		
-		attribute<string>       name            := replace(label, ' ', '_', '/', '_', '-', '_');
+		// attribute<string>       name            := replace(label, ' ', '_', '/', '_', '-', '_');
+		attribute<string>       name            := AsItemName(label);
 		attribute<uint32>       BrushColor      := rgb(r, g, b), DialogType = "BrushColor";
 		attribute<uint32>       PenColor        := BrushColor, DialogType = "PenColor";
 		parameter<int16>        PenWidth        := 0[int16], DialogType = "penWidth";
