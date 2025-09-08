@@ -1,12 +1,12 @@
 container BAG : using = "typeringen;eenheden"
 {      
-	unit<uint32>				RegioUnit_buurt     	:= brondata/regios/buurten/src_2012;
-	unit<uint32>				RegioUnit_wijk    		:= brondata/regios/wijken/src_2012;
-	unit<uint32>				RegioUnit_gem    		:= BronData/regios/gemeenten/gem_2012/gem_uq;
-	unit<uint32>				RegioUnit_nvm    		:= BronData/regios/nvm/src;
-	unit<uint32>				RegioUnit_prov   		:= BronData/regios/provincies/src_2012;
+	// unit<uint32>				RegioUnit_buurt     	:= brondata/regios/buurten/src_2012;
+	// unit<uint32>				RegioUnit_wijk    		:= brondata/regios/wijken/src_2012;
+	// unit<uint32>				RegioUnit_gem    		:= BronData/regios/gemeenten/gem_2012/gem_uq;
+	// unit<uint32>				RegioUnit_nvm    		:= BronData/regios/nvm/src;
+	// unit<uint32>				RegioUnit_prov   		:= BronData/regios/provincies/src_2012;
 	unit<uint32>				RegioUnit_pc4   		:= BronData/regios/Postcode_gebieden/Postcode4;
-	unit<uint32>				RegioUnit_nl   			:= BronData/regios/nederland/src;
+	// unit<uint32>				RegioUnit_nl   			:= BronData/regios/nederland/src;
 	unit<uint32>				RegioUnit_MRA           := Brondata/regios/MRA/MRA1;
 	unit<uint32>				RegioUnit_Aggl          := Brondata/regios/gemeenten/gem_src/j2019/UrbanCores;
 	
@@ -74,7 +74,7 @@ container BAG : using = "typeringen;eenheden"
 
 			}
 			
-			unit<uint32> pand := subset(src/X_ext < 1000000i && src/Y_ext < 1000000i
+			unit<uint32> pand := select_with_org_rel(src/X_ext < 1000000i && src/Y_ext < 1000000i
 											&& 	(src/meta/status == 'Pand in gebruik' 
 												|| src/meta/status == 'Pand in gebruik (niet ingemeten)' 
 												|| src/meta/status == 'Pand buiten gebruik'
@@ -87,14 +87,14 @@ container BAG : using = "typeringen;eenheden"
 			{
 				unit<uint32>  vbo_domein                     := ='VBOs/Y' + string(Year) + '/src/vbo';
 			
-				attribute<geometries/rdc_mm>                   geometry_mm (polygon)   := src/geometry_mm[Nr_OrgEntity];
+				attribute<geometries/rdc_mm>                   geometry_mm (polygon)   := src/geometry_mm[org_rel];
 				attribute<geometries/rdc>                      geometry (polygon)      := geometry_mm[geometries/rdc];
-				attribute<string>                              identificatie           := src/identificatie[Nr_OrgEntity];
+				attribute<string>                              identificatie           := src/identificatie[org_rel];
 				// attribute<vbo_gebruiksdoel>                    modus_vbo_gebruiksdoel  := modus(vbo_domein/gebruiksdoel_class, pand_vbo_rel);
 
-				attribute<eenheden/jaar>                       bouwjaar                := src/bouwjaar[Nr_OrgEntity];
+				attribute<eenheden/jaar>                       bouwjaar                := src/bouwjaar[org_rel];
 				attribute<eenheden/jaar>                       bouwjaar_trunc          := ='bouwjaar < 1000s || bouwjaar > '+ string(Year) +'[eenheden/jaar] ? (0/0)[int16] : bouwjaar < 1600s ? 1600s : bouwjaar';
-				attribute<typeringen/type_woonpand>            woonpand_rel            := src/woonpand_rel[Nr_OrgEntity];
+				attribute<typeringen/type_woonpand>            woonpand_rel            := src/woonpand_rel[org_rel];
 				attribute<eenheden/m2>                         opp                     := area(geometry, eenheden/m2);
 				parameter<m2>                                  total_footprint         := sum(opp);
 				attribute<int32>                               sum_vbo_opp             := sum(vbo_domein/oppervlakte_trunc, vbo_domein/pand_src_rel);
@@ -105,34 +105,34 @@ container BAG : using = "typeringen;eenheden"
 
 				attribute<.>                                   pand_vbo_rel           (vbo_domein)            := point_in_polygon(vbo_domein/geometry, geometry);
 				
-				unit<uint32> pand_met_vbo_alle_functies := subset(pand/count_vbo_pand > 0)
+				unit<uint32> pand_met_vbo_alle_functies := select_with_org_rel(pand/count_vbo_pand > 0)
 				, DialogType = "Map"
 				, DialogData = "geometry_mm"
 				{
-					attribute<geometries/rdc_mm>                  geometry_mm (polygon)               := pand/geometry_mm[Nr_OrgEntity];
+					attribute<geometries/rdc_mm>                  geometry_mm (polygon)               := pand/geometry_mm[org_rel];
 					attribute<geometries/rdc>                     geometry (polygon)                  := geometry_mm[geometries/rdc];
 					attribute<geometries/rdc>                     centroid                            := centroid_or_mid(geometry);
-					attribute<string>                             identificatie                       := pand/identificatie[Nr_OrgEntity];
-					attribute<eenheden/jaar>                      bouwjaar                            := pand/bouwjaar[Nr_OrgEntity];
-					attribute<eenheden/jaar>                      bouwjaar_trunc                      := pand/bouwjaar_trunc[Nr_OrgEntity];
+					attribute<string>                             identificatie                       := pand/identificatie[org_rel];
+					attribute<eenheden/jaar>                      bouwjaar                            := pand/bouwjaar[org_rel];
+					attribute<eenheden/jaar>                      bouwjaar_trunc                      := pand/bouwjaar_trunc[org_rel];
 					attribute<m2>                                 footprint                           := abs(area(geometry, m2));
 					attribute<m2>                                 footprint_nietabs                           := (area(geometry, m2));
 					parameter<m2>                                 total_footprint                     := sum(footprint);
 					
-					attribute<typeringen/type_woonpand>           woonpand_rel                        := pand/woonpand_rel[Nr_OrgEntity];
-					attribute<eenheden/m2>                        opp                                 := pand/opp[Nr_OrgEntity];
+					attribute<typeringen/type_woonpand>           woonpand_rel                        := pand/woonpand_rel[org_rel];
+					attribute<eenheden/m2>                        opp                                 := pand/opp[org_rel];
 					attribute<rdc_100m>                           rdc_100m_rel                        := pand_centroid[rdc_100m];
 					
 					attribute<m2>                                 sum_vbo_opp                         := sum(vbo_domein/oppervlakte_trunc[m2], vbo_domein/pand_rel);
-					// attribute<vbo_gebruiksdoel_plus>                   modus_vbo_gebruiksdoel              := pand/modus_vbo_gebruiksdoel[nr_OrgEntity];
-					attribute<geometries/rdc>                     pand_centroid                       := pand/pand_centroid[Nr_OrgEntity];
+					// attribute<vbo_gebruiksdoel_plus>                   modus_vbo_gebruiksdoel              := pand/modus_vbo_gebruiksdoel[org_rel];
+					attribute<geometries/rdc>                     pand_centroid                       := pand/pand_centroid[org_rel];
 					
 					container Footprint_VBOOpp_per_vbo_functie :=
 						for_each_nedv(
 							typeringen/vbo_gebruiksdoel_plus/name
 							,'((sum(vbo_domein/gebruiksdoelen/'+vbo_gebruiksdoel_plus/name+' ? vbo_domein/oppervlakte_trunc[m2] : (0/0)[m2], vbo_domein/pand_rel)) / sum_vbo_opp) * footprint'
 							, pand_met_vbo_alle_functies
-							, float32
+							, float64
 						)
 					{
 						attribute<typeringen/vbo_gebruiksdoel_plus> ArgMax (..) := ='!IsDefined(bijeenkomst) ? (0/0)[typeringen/vbo_gebruiksdoel_plus] : ArgMax('+AsItemList(typeringen/vbo_gebruiksdoel_plus/name)+')[typeringen/vbo_gebruiksdoel_plus]';
@@ -143,7 +143,7 @@ container BAG : using = "typeringen;eenheden"
 							typeringen/vbo_gebruiksdoel_plus/name
 							,'sum(Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+')'
 							, void
-							, float32
+							, float64
 						);
 						
 					container Footprint_VBOOpp_per_vbo_functie_ha :=
@@ -157,13 +157,16 @@ container BAG : using = "typeringen;eenheden"
 					container Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd :=
 						for_each_nedv(
 							typeringen/vbo_gebruiksdoel_plus/name
-							,'sum((Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+'[per_grid_10m] / count_10m_per_pand), rdc_10m/rdc_100m_rel)[m2] / 1[Ha] > 10000[m2_ha] ? 10000[m2_ha] : sum((Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel/name+'[per_grid_10m] / count_10m_per_pand), rdc_10m/rdc_100m_rel)[m2] / 1[Ha]'
+							,'sum((Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+'[per_grid_10m] / count_10m_per_pand)
+								, rdc_10m/rdc_100m_rel)[m2]/ 1[Ha] > 10000[m2_ha] 
+								? 10000[m2_ha] 
+								: sum((Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+'[per_grid_10m] / count_10m_per_pand), rdc_10m/rdc_100m_rel)[m2] / 1[Ha]'
 							, rdc_100m
 							, m2_ha
 						);
 					
 					attribute<uint32>     per_grid_10m                    (rdc_10m)             := poly2grid(geometry, rdc_10m);
-					attribute<float32>    count_10m_per_pand              (rdc_10m)             := (pcount(per_grid_10m)[per_grid_10m])[float32];
+					attribute<float64>    count_10m_per_pand              (rdc_10m)             := (pcount(per_grid_10m)[per_grid_10m])[float64];
 					// attribute<m2>         opp_uitgesmeerd_op_grid_10m     (rdc_10m)             := footprint[per_grid_10m] / count_10m_per_pand;
 					// attribute<m2_ha>      opp_obv10m_per_domain_grid_src  (rdc_100m)                 := sum(opp_uitgesmeerd_op_grid_10m, rdc_10m/rdc_100m_rel)[m2] / 1[Ha];
 					// attribute<m2_ha>      opp_obv10m_per_domain_grid      (rdc_100m)                 := opp_obv10m_per_domain_grid_src > 10000[m2_ha] ? 10000[m2_ha] : opp_obv10m_per_domain_grid_src;
@@ -287,28 +290,28 @@ container BAG : using = "typeringen;eenheden"
 				}
 				attribute<string>        status        (src);
 				
-				unit<uint32> VBO := subset((meta/status == 'Verblijfsobject buiten gebruik' 
+				unit<uint32> VBO := select_with_org_rel((meta/status == 'Verblijfsobject buiten gebruik' 
 											|| meta/status == 'Verblijfsobject in gebruik'
 											|| meta/status == 'Verblijfsobject in gebruik (niet ingemeten)'
 											|| meta/status == 'Verbouwing verblijfsobject')
 											// && src/LigtInCBSVerblijfsrecreatie
 											)
 				{
-					attribute<geometries/rdc_mm>      geometry_mm         := ../geometry_mm[nr_OrgEntity];
+					attribute<geometries/rdc_mm>      geometry_mm         := ../geometry_mm[org_rel];
 					attribute<geometries/rdc>         geometry            := geometry_mm[geometries/rdc];
-					attribute<int32>                  oppervlakte_trunc   := ../oppervlakte_trunc[nr_OrgEntity];
+					attribute<int32>                  oppervlakte_trunc   := ../oppervlakte_trunc[org_rel];
 					parameter<int32>                  opp_bijeen          := sum(gebruiksdoelen/bijeenkomst ? oppervlakte_trunc : 0i);
 					
-					// attribute<vbo_gebruiksdoel>       gebruiksdoel_rel      := ../gebruiksdoel_rel[nr_OrgEntity];
-					attribute<vbo_gebruiksdoel_plus>  gebruiksdoel_plus_rel := ../gebruiksdoel_plus_rel[nr_OrgEntity];
-					attribute<string>                 identificatie       := ../identificatie[nr_OrgEntity];
-					attribute<m2>                     oppervlakte         := (../oppervlakte[nr_OrgEntity])[m2];
+					// attribute<vbo_gebruiksdoel>       gebruiksdoel_rel      := ../gebruiksdoel_rel[org_rel];
+					attribute<vbo_gebruiksdoel_plus>  gebruiksdoel_plus_rel := ../gebruiksdoel_plus_rel[org_rel];
+					attribute<string>                 identificatie       := ../identificatie[org_rel];
+					attribute<m2>                     oppervlakte         := (../oppervlakte[org_rel])[m2];
 					parameter<m2>                     total_sum_opp_trunc     := sum(oppervlakte_trunc[m2]);
-					attribute<string>                 nummeraanduiding_id := ../nummeraanduiding_id[nr_OrgEntity];
+					attribute<string>                 nummeraanduiding_id := ../nummeraanduiding_id[org_rel];
 					attribute<jaar>                   bouwjaar            := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/bouwjaar);
 					attribute<jaar>                   bouwjaar_trunc      := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/bouwjaar_trunc);
 
-					attribute<string>                 pand_id_geom        := ../pand_id_geom[nr_OrgEntity];
+					attribute<string>                 pand_id_geom        := ../pand_id_geom[org_rel];
 					attribute<type_woonpand>          woonpand_rel        := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/woonpand_rel);
 					attribute<int32>                  pand_opp            := int32(rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/opp));
 					// attribute<uint32>                 count_vbo_pand_woon := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/count_vbo_pand_woon);
@@ -319,7 +322,7 @@ container BAG : using = "typeringen;eenheden"
 
 					attribute<rdc_100m>         NL_grid_domain_rel           := geometry[rdc_100m];
 				
-					container gebruiksdoelen := for_each_nedv(typeringen/vbo_gebruiksdoel_plus/name, 'src/gebruiksdoelen_cbs/'+typeringen/vbo_gebruiksdoel_plus/name+'[nr_OrgEntity]' ,VBO, bool);
+					container gebruiksdoelen := for_each_nedv(typeringen/vbo_gebruiksdoel_plus/name, 'src/gebruiksdoelen_cbs/'+typeringen/vbo_gebruiksdoel_plus/name+'[org_rel]' ,VBO, bool);
 
 				}
 				
@@ -335,7 +338,7 @@ container BAG : using = "typeringen;eenheden"
 					parameter<string> name;
 					///
 
-					unit<uint32> GebruiksdoelSet := ='subset(src/gebruiksdoelen_cbs/'+name+
+					unit<uint32> GebruiksdoelSet := ='select_with_org_rel(src/gebruiksdoelen_cbs/'+name+
 						' && (src/status_rel == typeringen/vbo_status/V/verblijfsobject_in_gebruik
 							|| src/status_rel == typeringen/vbo_status/V/verblijfsobject_in_gebruik_niet_ingemeten
 							|| src/status_rel == typeringen/vbo_status/V/verblijfsobject_buiten_gebruik
@@ -345,18 +348,18 @@ container BAG : using = "typeringen;eenheden"
 					,	DialogType = "Map"
 					,	DialogData = "geometry_mm"
 					{
-						attribute<geometries/rdc_mm>      geometry_mm         := src/geometry_mm[nr_OrgEntity];
+						attribute<geometries/rdc_mm>      geometry_mm         := src/geometry_mm[org_rel];
 						attribute<geometries/rdc>         geometry            := geometry_mm[geometries/rdc];
-						attribute<int32>                  oppervlakte_trunc   := src/oppervlakte_trunc[nr_OrgEntity];
+						attribute<int32>                  oppervlakte_trunc   := src/oppervlakte_trunc[org_rel];
 						
-						attribute<string>                 identificatie       := src/identificatie[nr_OrgEntity];
-						attribute<m2>                     oppervlakte         := (src/oppervlakte[nr_OrgEntity])[m2];
+						attribute<string>                 identificatie       := src/identificatie[org_rel];
+						attribute<m2>                     oppervlakte         := (src/oppervlakte[org_rel])[m2];
 						parameter<int32>                  total_sum_opp_trunc     := sum(oppervlakte_trunc);
-						attribute<string>                 nummeraanduiding_id := src/nummeraanduiding_id[nr_OrgEntity];
+						attribute<string>                 nummeraanduiding_id := src/nummeraanduiding_id[org_rel];
 						attribute<jaar>                   bouwjaar            := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/bouwjaar);
 						attribute<jaar>                   bouwjaar_trunc      := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/bouwjaar_trunc);
 
-						attribute<string>                 pand_id_geom        := src/pand_id_geom[nr_OrgEntity];
+						attribute<string>                 pand_id_geom        := src/pand_id_geom[org_rel];
 						attribute<type_woonpand>          woonpand_rel        := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/woonpand_rel);
 						attribute<int32>                  pand_opp            := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/opp[int32]);
 						// attribute<uint32>                 count_vbo_pand_woon := rjoin(pand_id_geom, pand_domein/identificatie, pand_domein/count_vbo_pand_woon);

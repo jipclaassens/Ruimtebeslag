@@ -125,13 +125,13 @@ container regios : using = "geometries"
 				attribute<bool>           IsUrbanCore_grid (rdc_100m) := IsUrbanCore[grid];
 				attribute<geometries/rdc> GewogenAdressenCentroid;
 				
-				unit<uint32> UrbanCores  := ='subset('+AsList('GM_CODE == '+quote(UrbanCores_list/GM_CODE)+' ','||')+')'
+				unit<uint32> UrbanCores  := ='select_with_org_rel('+AsList('GM_CODE == '+quote(UrbanCores_list/GM_CODE)+' ','||')+')'
 				, 	Descr = "Op basis van CBS Grootstedelijke Agglomeraties 2015"
 				{    
-					attribute<geometries/rdc>    geometry (poly)                      := ../geometry[nr_OrgEntity];
+					attribute<geometries/rdc>    geometry (poly)                      := ../geometry[org_rel];
 					attribute<geometries/rdc_mm> geometry_mm (poly)                := geometry[geometries/rdc_mm];
-					attribute<string>         GM_CODE                              := ../GM_CODE[nr_OrgEntity];
-					attribute<string>         label                                := ../label[nr_OrgEntity]; //, DialogType = "LabelText";
+					attribute<string>         GM_CODE                              := ../GM_CODE[org_rel];
+					attribute<string>         label                                := ../label[org_rel]; //, DialogType = "LabelText";
 					attribute<UrbanCores_list/Region_uq>         Region_rel        := rjoin(GM_CODE, UrbanCores_list/GM_CODE, UrbanCores_list/Region_rel);
 					attribute<Agglomeration_uq>  Agglomeration_rel := rjoin(GM_CODE, UrbanCores_list/GM_CODE, UrbanCores_list/Agglomeration_rel);
 					attribute<string>                            Region            := UrbanCores_list/Region_uq/values[Region_rel];
@@ -145,12 +145,12 @@ container regios : using = "geometries"
 					attribute<geometries/rdc_mm> Geometry_mm  (poly) := partitioned_union_polygon(UrbanCores/geometry_mm, UrbanCores/Agglomeration_rel);
 					attribute<geometries/rdc>    Geometry     (poly) := geometry_mm[geometries/rdc];
 					
-					unit<uint32> sub := subset(id(.) > 4)
+					unit<uint32> sub := select_with_org_rel(id(.) > 4)
 					{
-						attribute<string>            name             := ../name[nr_OrgEntity];
-						attribute<string>            Label            := ../Label[nr_OrgEntity];
-						attribute<geometries/rdc_mm> Geometry_mm  (poly) := ../Geometry_mm[nr_OrgEntity];
-						attribute<geometries/rdc>    Geometry     (poly) := ../Geometry[nr_OrgEntity];
+						attribute<string>            name             := ../name[org_rel];
+						attribute<string>            Label            := ../Label[org_rel];
+						attribute<geometries/rdc_mm> Geometry_mm  (poly) := ../Geometry_mm[org_rel];
+						attribute<geometries/rdc>    Geometry     (poly) := ../Geometry[org_rel];
 					}
 				}
 				
@@ -378,7 +378,7 @@ container regios : using = "geometries"
 			attribute<uint32>           woz                       := rjoin(BU_CODE, woz_buurt/woz_2016/CODERING, uint32(woz_buurt/woz_2016/GEMIDDELDE_WONINGWAARDE));
 		}
 		unit<uint32> src_2019
-		:	StorageName     = "%AltSourceDataDir%/CBS/2019/buurt_2019_v1.shp"
+		:	StorageName     = "%RuimtebeslagDir%/RegioIndelingen/buurt_2019_v1.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{
@@ -386,9 +386,9 @@ container regios : using = "geometries"
 			attribute<string>           label                     := BU_NAAM ;
 			attribute<.>                grid (rdc_100m)     := poly2grid(geometry, rdc_100m);
 			
-			unit<uint32> IsLand := subset(WATER == 'NEE')
+			unit<uint32> IsLand := select_with_org_rel(WATER == 'NEE')
 			{
-				attribute<geometries/rdc>      geometry (poly) := ../geometry[nr_OrgEntity];
+				attribute<geometries/rdc>      geometry (poly) := ../geometry[org_rel];
 				parameter<geometries/rdc_mm>   union (poly) := union_polygon(geometry[geometries/rdc_mm]);
 				attribute<.>                   grid (rdc_100m)     := poly2grid(geometry, rdc_100m);
 			}
@@ -479,11 +479,11 @@ container regios : using = "geometries"
 			attribute<.>                grid      (rdc_100m) := poly2grid(geometry, rdc_100m);
 			attribute<uint32>           aggl_rel                   := point_in_polygon(centroid, /Brondata/regios/gemeenten/gem_src/j2019/Agglomeration_uq/Geometry);
 
-			unit<uint32> BuurtInAggl := subset(IsDefined(aggl_rel))
+			unit<uint32> BuurtInAggl := select_with_org_rel(IsDefined(aggl_rel))
 			{
-				attribute<geometries/rdc>   geometry  (poly)  := ../geometry[nr_OrgEntity];
-				attribute<string>           label             := ../label[nr_OrgEntity];
-				attribute<string>           GM_NAAM           := ../GM_NAAM[nr_OrgEntity];
+				attribute<geometries/rdc>   geometry  (poly)  := ../geometry[org_rel];
+				attribute<string>           label             := ../label[org_rel];
+				attribute<string>           GM_NAAM           := ../GM_NAAM[org_rel];
 				attribute<string>           buurt_name        := replace(label, '/', '_', '-', '_', ' ', '_', '.', '', 'â', 'a', '&', 'en', '(', '', ')', '', ',', '_', '''\', '', 'é', 'e');
 				attribute<string>           gem_name          := replace(GM_NAAM, '/', '_', '-', '_', ' ', '_', '.', '', 'â', 'a', '&', 'en', '(', '', ')', '', ',', '_', '''\', '', 'é', 'e');
 				
@@ -646,10 +646,10 @@ container regios : using = "geometries"
 			attribute<float32>                    landprice               := rjoin(name, Overig/landprice_pc4_2007/PC4code, Overig/landprice_pc4_2007/landprice);
 			attribute<float32>                    landprice_grid (rdc_100m) := landprice[grid];
 			
-			unit<uint32> MRA := subset(IsDefined(MRA_rel))
+			unit<uint32> MRA := select_with_org_rel(IsDefined(MRA_rel))
 			{
-				attribute<rdc>      geometry (poly) := ../geometry[nr_OrgEntity];
-				attribute<string>   PC4             := ../PC4[nr_OrgEntity];
+				attribute<rdc>      geometry (poly) := ../geometry[org_rel];
+				attribute<string>   PC4             := ../PC4[org_rel];
 			}
 		}
 

@@ -109,7 +109,7 @@ container IBIS : using = "typeringen"
 		attribute<ha>                         uitgegeven        := netuitg[ha];
 	}
 	unit<uint32> Y2012
-	:  StorageName = "%AltSourceDataDir%/IBIS/IBIS2011_Terrein.shp"
+	:  StorageName = "%RuimtebeslagDir%/Grondgebruik/IBIS/IBIS2011_Terrein.shp"
 	,  StorageType = "gdal.vect"
 	,  StorageReadOnly = "True"
 	,  DialogType = "Map"

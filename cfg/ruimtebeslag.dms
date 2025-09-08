@@ -11,8 +11,9 @@ container Ruimtebeslag
 	
 	container geometries: using = "eenheden"
 	{
-		unit<fpoint> rdc_base   : DialogData = "ngr_layer", SpatialReference = "EPSG:28992";
-		unit<fpoint> rdc       := range(rdc_base, point_xy(x_min, y_min,rdc_base), point_xy(x_max, y_max,rdc_base));
+		unit<dpoint> rdc_base   : DialogData = "ngr_layer", SpatialReference = "EPSG:28992";
+		// unit<dpoint> rdc       := range(rdc_base, point_xy(x_min, y_min,rdc_base), point_xy(x_max, y_max,rdc_base));
+		unit<dpoint> rdc       := range(rdc_base, point_xy(x_min, y_min,rdc_base), point_xy(x_max, y_max,rdc_base));
 		unit<ipoint> rdc_mm    := gridset(rdc, point(0.001,0.001), point(0.0, 0.0), ipoint);
 		
 		unit<dpoint> LambertEA: Descr = "ETRS_1989_LAEA_52N_10E" // "coords from SW to NE";
@@ -31,19 +32,19 @@ container Ruimtebeslag
 			{
 				parameter<m>       gridgrootte;
 				parameter<m>       afkapstraal;
-				parameter<float32> straal                 := afkapstraal / gridgrootte;
+				parameter<float64> straal                 := afkapstraal / gridgrootte;
 				unit<spoint>       potRange               := range(spoint, point(-straal[int16], -straal[int16]), point(straal[int16] + 1s, straal[int16] + 1s))
 				{
 					attribute<Dist2Range> distMatr        := dist2(point(0s, 0s, potRange), Dist2Range);
-					attribute<float32> distMatr_f         := distMatr[float32];
-					attribute<float32> AbsWeight          := distMatr[float32] <= (straal * straal) ? 1f / (distMatr[float32] ^ 2f) : 0f;
-					attribute<float32> RelWeightSqrt      := AbsWeight / Sum(AbsWeight);
-					attribute<float32> binair             := distMatr <= 100 ? 1f : 0f;
-					attribute<float32> neighbourhood      := distMatr > 0 ? 1f : 0f;
-					attribute<float32> dist         := sqrt(float32(distMatr));
-					attribute<float32> rev_dist     := max_elem(straal - dist, 0f);
-					parameter<float32> rev_dist_max := max(rev_dist);
-					attribute<float32> rev_dist_scaled := rev_dist / rev_dist_max;
+					attribute<float64> distMatr_f         := distMatr[float64];
+					attribute<float64> AbsWeight          := distMatr[float64] <= (straal * straal) ? 1d / (distMatr[float64] ^ 2d) : 0d;
+					attribute<float64> RelWeightSqrt      := AbsWeight / Sum(AbsWeight);
+					attribute<float64> binair             := distMatr <= 100 ? 1d : 0d;
+					attribute<float64> neighbourhood      := distMatr > 0 ? 1d : 0d;
+					attribute<float64> dist         := sqrt(float64(distMatr));
+					attribute<float64> rev_dist     := max_elem(straal - dist, 0d);
+					parameter<float64> rev_dist_max := max(rev_dist);
+					attribute<float64> rev_dist_scaled := rev_dist / rev_dist_max;
 				}
 			}
 		}
@@ -87,7 +88,7 @@ container Ruimtebeslag
 			{
 				parameter<m>                    gridsize        := ../gridsize;
 				parameter<int32>                nr_cols         := ../nr_cols;
-				attribute<rdc>                  point           := mapping(., rdc) + point_yx(-0.5f * gridsize, 0.5f * gridsize, rdc);
+				attribute<rdc>                  point           := mapping(., rdc) + point_yx(-0.5d * gridsize, 0.5d * gridsize, rdc);
 				unit<uint32>                    id_key          := range(uint32, 0, uint32(#domain));
 				attribute<uint32>               id_rel          := value(uint32(pointrow(id(.))) * uint32(nr_cols) + uint32(pointcol(id(.))), id_key);
 				
@@ -112,8 +113,8 @@ container Ruimtebeslag
 			{
 				attribute<uint32>               id_rel    := org_rel -> id_rel;
 				attribute<rdc>                  geometry  := org_rel -> point;
-				attribute<float32>              x         := PointCol(geometry);
-				attribute<float32>              y         := PointRow(geometry);
+				attribute<float64>              x         := PointCol(geometry);
+				attribute<float64>              y         := PointRow(geometry);
 				attribute<domain>               grid_rel  := geometry[domain];	
 			}
 		}
@@ -205,10 +206,10 @@ container Ruimtebeslag
 		}
 		///////
 		
-		unit<uint32> points := Subset(domain/IsNederland)
+		unit<uint32> points := select_with_org_rel(domain/IsNederland)
 		{
-			attribute<geometries/rdc> 	geometry  := domain/point_rd[nr_OrgEntity];	
-			attribute<uint32>           id        := domain/identificatie[nr_OrgEntity];
+			attribute<geometries/rdc> 	geometry  := domain/point_rd[org_rel];	
+			attribute<uint32>           id        := domain/identificatie[org_rel];
 			
 			attribute<float32>          x         := PointCol(geometry);
 			attribute<float32>          y         := PointRow(geometry);
