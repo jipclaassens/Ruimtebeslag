@@ -45,11 +45,11 @@ container typeringen: isHidden = "True", using = "eenheden"
 		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
 		
 		attribute<bool>   IsUtiliteit := label != 'woonfunctie';
-		unit<uint8> Utiliteiten := subset(IsUtiliteit)
+		unit<uint8> Utiliteiten := select_with_org_rel(IsUtiliteit)
 		{
-			attribute<string> label        := ../label[nr_OrgEntity];
-			attribute<string> name         := ../name[nr_OrgEntity];
-			attribute<uint32> BrushColor   := ../BrushColor[nr_OrgEntity], DialogType = "BrushColor";
+			attribute<string> label        := ../label[org_rel];
+			attribute<string> name         := ../name[org_rel];
+			attribute<uint32> BrushColor   := ../BrushColor[org_rel], DialogType = "BrushColor";
 		}
 	}
 	// unit<uint8> vbo_plus : nrofrows = 3
@@ -57,32 +57,32 @@ container typeringen: isHidden = "True", using = "eenheden"
 		// attribute<string> label : ['logistiekfunctie','utiliteit combi-functie','niet woon'];
 		// attribute<string> name  : ['logistiek','utiliteit_combi', 'niet_woon'];
 	// }
-	unit<uint8> vbo_plus : nrofrows = 1
+	unit<uint8> vbo_plus : nrofrows = 2
 	{
-		attribute<string> label : ['utiliteit combi-functie'];
-		attribute<string> name  : ['utiliteit_combi'];
+		attribute<string> label : ['logistiek','utiliteit combi-functie'];
+		attribute<string> name  : ['logistiek','utiliteit_combi'];
 	}
 	unit<uint8> vbo_gebruiksdoel_plus := union_unit_uint8(vbo_gebruiksdoel, vbo_plus)
 	{
 		attribute<string> name      := union_data(., vbo_gebruiksdoel/name, vbo_plus/name);
 		attribute<string> label     := union_data(., vbo_gebruiksdoel/label, vbo_plus/label);
 		
-		attribute<Actor/Jobs6> jobs6_rel := union_data(.
-			,Actor/Jobs6/V/Ov_consumentendiensten // 'bijeenkomstfunctie',
-			,Actor/Jobs6/V/Overheid_kw_diensten   // 'celfunctie',
-			,Actor/Jobs6/V/Overheid_kw_diensten   // 'gezondheidszorgfunctie',
-			,Actor/Jobs6/V/Nijverheid             // 'industriefunctie',
-			,Actor/Jobs6/V/Zak_dienstverlening    // 'kantoorfunctie',
-			,Actor/Jobs6/V/Ov_consumentendiensten // 'logiesfunctie',
-			,Actor/Jobs6/V/Overheid_kw_diensten   // 'onderwijsfunctie',
-			,(0b/0b)[Actor/Jobs6]                 // 'overige gebruiksfunctie',
-			,Actor/Jobs6/V/Ov_consumentendiensten // 'sportfunctie',
-			,Actor/Jobs6/V/Detailhandel           // 'winkelfunctie',
-			,(0b/0b)[Actor/Jobs6]                 // 'woonfunctie'
+		// attribute<Actor/Jobs6> jobs6_rel := union_data(.
+			// ,Actor/Jobs6/V/Ov_consumentendiensten // 'bijeenkomstfunctie',
+			// ,Actor/Jobs6/V/Overheid_kw_diensten   // 'celfunctie',
+			// ,Actor/Jobs6/V/Overheid_kw_diensten   // 'gezondheidszorgfunctie',
+			// ,Actor/Jobs6/V/Nijverheid             // 'industriefunctie',
+			// ,Actor/Jobs6/V/Zak_dienstverlening    // 'kantoorfunctie',
+			// ,Actor/Jobs6/V/Ov_consumentendiensten // 'logiesfunctie',
+			// ,Actor/Jobs6/V/Overheid_kw_diensten   // 'onderwijsfunctie',
+			// ,(0b/0b)[Actor/Jobs6]                 // 'overige gebruiksfunctie',
+			// ,Actor/Jobs6/V/Ov_consumentendiensten // 'sportfunctie',
+			// ,Actor/Jobs6/V/Detailhandel           // 'winkelfunctie',
+			// ,(0b/0b)[Actor/Jobs6]                 // 'woonfunctie'
 			// ,Actor/Jobs6/V/logistiek              // 'logistiek
-			,Actor/Jobs6/V/Nijverheid             // 'util combi
+			// ,Actor/Jobs6/V/Nijverheid             // 'util combi
 			// ,(0b/0b)[Actor/Jobs6]                 // 'niet_woon'
-		);
+		// );
 		
 		container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
 	}
@@ -113,9 +113,9 @@ container typeringen: isHidden = "True", using = "eenheden"
 		attribute<string> name    := 'Y' + string(id(.));
 	}
 	
-	unit<uint32> BBG_jaren : nrofrows = 8
+	unit<uint32> BBG_jaren : nrofrows = 9
 	{
-		attribute<uint32>  values  : [1996, 2000, 2003, 2006, 2008, 2010, 2012, 2015];
+		attribute<uint32>  values  : [1996, 2000, 2003, 2006, 2008, 2010, 2012, 2015, 2017];
 		attribute<string> label   := name , DialogType = "LabelText";
 		attribute<string> name    := 'Y' + string(values);
 	}
@@ -450,16 +450,16 @@ container typeringen: isHidden = "True", using = "eenheden"
 			attribute<string>  name     := 'y' + string(values), DialogType = "LabelText";
 		}
 		
-		unit<uint8> BBG_potential := subset(potentiaal == 1b)
+		unit<uint8> BBG_potential := select_with_org_rel(potentiaal == 1b)
 		{
-			attribute<uint8>        org_id          := ../id[nr_OrgEntity];
-			attribute<uint8>        bbg_ek          := ../bbg_ek[nr_OrgEntity];
-			attribute<string>       label           := ../label[nr_OrgEntity], DialogType = "LabelText";
-			attribute<string>       name            := ../name[nr_OrgEntity];
-			attribute<uint32>       BrushColor      := ../BrushColor[nr_OrgEntity], DialogType = "BrushColor";
-			attribute<uint32>       PenColor        := ../PenColor[nr_OrgEntity], DialogType = "PenColor";
+			attribute<uint8>        org_id          := ../id[org_rel];
+			attribute<uint8>        bbg_ek          := ../bbg_ek[org_rel];
+			attribute<string>       label           := ../label[org_rel], DialogType = "LabelText";
+			attribute<string>       name            := ../name[org_rel];
+			attribute<uint32>       BrushColor      := ../BrushColor[org_rel], DialogType = "BrushColor";
+			attribute<uint32>       PenColor        := ../PenColor[org_rel], DialogType = "PenColor";
 			parameter<int16>        PenWidth        := 0[int16], DialogType = "penWidth";
-			attribute<uint32>       SymbolColor     := ../SymbolColor[nr_OrgEntity], DialogType = "SymbolColor";
+			attribute<uint32>       SymbolColor     := ../SymbolColor[org_rel], DialogType = "SymbolColor";
 			container V := for_each_nedv(name, String(ID(.))+'[..]', void, .);
 		}
 		

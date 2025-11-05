@@ -34,7 +34,7 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 	
 	container Dominant
 	{
-		parameter<string> Aggregation_method := ModelParameters/landuse_aggregation_method;
+		// parameter<string> Aggregation_method := ModelParameters/landuse_aggregation_method;
 		
 		// #include<impl.dms>
 		
@@ -42,36 +42,98 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 		attribute<typeringen/bbg/gg_10k> bbg2017_5m_10k     (rdc_5m) := !IsDefined(bbg2017_5m_10k_src) ? typeringen/bbg/gg_10k/v/osa_ : bbg2017_5m_10k_src;
 		attribute<typeringen/bbg/gg_12k> bbg2017_5m_12k_src (rdc_5m) := typeringen/bbg/gg_12k_rel[per_5m/Y2017];
 		attribute<typeringen/bbg/gg_12k> bbg2017_5m_12k     (rdc_5m) := !IsDefined(bbg2017_5m_12k_src) ? typeringen/bbg/gg_12k/v/osa_ : bbg2017_5m_12k_src;
+		
+		attribute<typeringen/bbg/gg_12k> bbg2012_5m_12k_src (rdc_5m) := typeringen/bbg/gg_12k_rel[per_5m/Y2012];
+		attribute<typeringen/bbg/gg_12k> bbg2012_5m_12k     (rdc_5m) := !IsDefined(bbg2012_5m_12k_src) ? typeringen/bbg/gg_12k/v/osa_ : bbg2012_5m_12k_src;
 
 		attribute<typeringen/bbg/gg_10k> bbg2017_10m_10k_src (rdc_10m) := typeringen/bbg/gg_10k_rel[per_10m/Y2017];
 		attribute<typeringen/bbg/gg_10k> bbg2017_10m_10k     (rdc_10m) := !IsDefined(bbg2017_10m_10k_src) ? typeringen/bbg/gg_10k/v/osa_ : bbg2017_10m_10k_src;
 		attribute<typeringen/bbg/gg_12k> bbg2017_10m_12k_src (rdc_10m) := typeringen/bbg/gg_12k_rel[per_10m/Y2017];
 		attribute<typeringen/bbg/gg_12k> bbg2017_10m_12k     (rdc_10m) := !IsDefined(bbg2017_10m_12k_src) ? typeringen/bbg/gg_12k/v/osa_ : bbg2017_10m_12k_src;
+		
+		attribute<typeringen/bbg/gg_12k> bbg2012_10m_12k_src (rdc_10m) := typeringen/bbg/gg_12k_rel[per_10m/Y2012];
+		attribute<typeringen/bbg/gg_12k> bbg2012_10m_12k     (rdc_10m) := !IsDefined(bbg2012_10m_12k_src) ? typeringen/bbg/gg_12k/v/osa_ : bbg2012_10m_12k_src;
+		
 		attribute<BBG_Reeks_1996_2017>            CBS1996_2017_5mtr       (rdc_5m) := poly2grid(BBG_Reeks_1996_2017/Geometry, rdc_5m);
 		attribute<BBG_Reeks_1996_2017>            CBS1996_2017_10mtr     (rdc_10m) := poly2grid(BBG_Reeks_1996_2017/Geometry, rdc_10m);
 
 		container per_5m := 
 			for_each_neidv(
-				  Grondgebruik/ReeksJaren/naam
-				, 'BBG_Reeks_1996_2017/CBSKlasse_rel_'+Grondgebruik/ReeksJaren/jaar+'[CBS1996_2017_5mtr]'
+				  BBG_jaren/name
+				, 'BBG_Reeks_1996_2017/CBSKlasse_rel_'+string(BBG_jaren/values)+'[CBS1996_2017_5mtr]'
 				, 'not(all(IsNull(this))) && not(all(IsZero(this)))'
 				, rdc_5m
 				, typeringen/bbg
 			)
 		{
-			attribute<Grondgebruik/CBS2020Klasse> Y2020               (rdc_5m) := BBG_2020/CBSKlasse_rel_2020[CBS2020_5mtr];
+			// attribute<Grondgebruik/CBS2020Klasse> Y2020               (rdc_5m) := BBG_2020/CBSKlasse_rel_2020[CBS2020_5mtr];
 		}
 		
 		container per_10m := 
 			for_each_neidv(
-				  Grondgebruik/ReeksJaren/naam
-				, 'BBG_Reeks_1996_2017/CBSKlasse_rel_'+Grondgebruik/ReeksJaren/jaar+'[CBS1996_2017_10mtr]'
+				  BBG_jaren/name
+				, 'BBG_Reeks_1996_2017/CBSKlasse_rel_'+string(BBG_jaren/values)+'[CBS1996_2017_10mtr]'
 				, 'not(all(IsNull(this))) && not(all(IsZero(this)))'
 				, rdc_10m
 				, typeringen/bbg
 			)
 		{
-			attribute<Grondgebruik/CBS2020Klasse> Y2020               (rdc_10m) := BBG_2020/CBSKlasse_rel_2020[CBS2020_10mtr];
+			// attribute<Grondgebruik/CBS2020Klasse> Y2020               (rdc_10m) := BBG_2020/CBSKlasse_rel_2020[CBS2020_10mtr];
+		}
+		
+		container Share_LU_type
+		{
+			// container J1996 :=
+				// for_each_nedv(
+					 // typeringen/bbg/gg_12k/name
+					// ,'(sum(bbg1996_10m_12k == ' + string(typeringen/bbg/gg_12k/id) + '[typeringen/bbg/gg_12k] ? 1f : 0f, rdc_10m/rdc_100m_rel) / 100f)'
+					// ,rdc_100m
+					// ,float32
+				// )
+			// {
+					// attribute<float32>   Total            (rdc_100m)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+					// attribute<float32>   diversity        (rdc_100m)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+			// }
+			container J2012 := 
+				for_each_nedv(
+					 typeringen/bbg/gg_12k/name
+					,'(sum(bbg2012_10m_12k == ' + string(typeringen/bbg/gg_12k/id) + '[typeringen/bbg/gg_12k] ? 1f : 0f, rdc_10m/rdc_100m_rel) / 100f)'
+					,rdc_100m
+					,float32
+				)
+			{
+					attribute<float32>   Total            (rdc_100m)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+					attribute<float32>   diversity        (rdc_100m)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+			}
+		}
+		
+		container Avg_shr_LUtype_neigh
+		{
+			container J2012 
+			{
+				// container r100 := 
+					// for_each_nedv(
+						 // typeringen/bbg/gg_12k/name
+						// ,'potential(Share_LU_type/J2012/'+typeringen/bbg/gg_12k/name+', /geometries/potentialen/pot100m/potrange/neighbourhood) / sum(/geometries/potentialen/pot100m/potrange/neighbourhood)'
+						// , rdc_100m
+						// , float32
+					// )
+				// {
+						// attribute<float32>   Total            (rdc_100m)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+						// attribute<float32>   diversity        (rdc_100m)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+				// }
+				container r1000 := 
+					for_each_nedv(
+						 typeringen/bbg/gg_12k/name
+						,'potential(Share_LU_type/J2012/'+typeringen/bbg/gg_12k/name+', /geometries/potentialen/pot1000m/potrange/neighbourhood) / sum(/geometries/potentialen/pot1000m/potrange/neighbourhood)'
+						, rdc_100m
+						, float32
+					)
+				{
+						attribute<float32>   Total            (rdc_100m)    := = 'add('+asList(typeringen/bbg/gg_12k/name,',') + ')';
+						attribute<float32>   diversity        (rdc_100m)    := = '1f - add('+asList( + 'sqr(' + typeringen/bbg/gg_12k/name + ')',',')+')';
+				}
+			}
 		}
 	}
 	
@@ -255,9 +317,9 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 			parameter<string> year_name;
 			parameter<string> year;
 			
-			unit<uint32> IsVerblijfsRecreatieSub := ='subset(gg'+year+'_src_rel == typeringen/bbg/V/verblijfsrecreatie)'
+			unit<uint32> IsVerblijfsRecreatieSub := ='select_with_org_rel(gg'+year+'_src_rel == typeringen/bbg/V/verblijfsrecreatie)'
 			{
-				attribute<geometries/rdc>           geometry (poly) := BBG/geometry_rd[nr_OrgEntity];
+				attribute<geometries/rdc>           geometry (poly) := BBG/geometry_rd[org_rel];
 				
 				// attribute<.> logies_rel    (Analyse/Verblijfsrecreatie/union_logies_vbos)    := point_in_polygon(/Analyse/Verblijfsrecreatie/union_logies_vbos/Geometry, geometry);
 				
@@ -265,9 +327,9 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 			}
 		}
 		
-		unit<uint32> IsVerblijfsRecreatieSub1996 := subset(gg1996_src_rel == typeringen/bbg/V/verblijfsrecreatie)
+		unit<uint32> IsVerblijfsRecreatieSub1996 := select_with_org_rel(gg1996_src_rel == typeringen/bbg/V/verblijfsrecreatie)
 		{
-			attribute<geometries/rdc>           geometry_rd (poly) := ../geometry_rd[nr_OrgEntity];
+			attribute<geometries/rdc>           geometry_rd (poly) := ../geometry_rd[org_rel];
 			attribute<.>                        per_grid       (rdc_100m)     := poly2grid(geometry_rd, rdc_100m);
 			attribute<bool>                     bool           (rdc_100m)     := IsDefined(per_grid);
 			parameter<geometries/rdc_mm>        union   (poly)     := union_polygon(geometry_rd[geometries/rdc_mm]);
@@ -302,9 +364,9 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 				attribute<bool>              bool           (rdc_100m)     := IsDefined(per_grid);
 			}
 		}
-		unit<uint32> IsVerblijfsRecreatieSub2015 := subset(gg2015_src_rel == typeringen/bbg/V/verblijfsrecreatie)
+		unit<uint32> IsVerblijfsRecreatieSub2015 := select_with_org_rel(gg2015_src_rel == typeringen/bbg/V/verblijfsrecreatie)
 		{
-			attribute<geometries/rdc>           geometry_rd (poly) := ../geometry_rd[nr_OrgEntity];
+			attribute<geometries/rdc>           geometry_rd (poly) := ../geometry_rd[org_rel];
 			attribute<.>                        per_grid (rdc_100m)     := poly2grid(geometry_rd, rdc_100m);
 			attribute<bool>                     bool           (rdc_100m)     := IsDefined(per_grid);
 			parameter<geometries/rdc_mm>        union   (poly)     := union_polygon(geometry_rd[geometries/rdc_mm]);
@@ -403,9 +465,9 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 			parameter<string> Name;
 			
 			parameter<ha> Area := ='sum(gg2015_src_rel == typeringen/bbg/V/'+Name+' ? area(geometry_rd, ha) : 0[ha])';
-			unit<uint32> sub := = 'subset(gg2015_src_rel == typeringen/bbg/V/'+Name+')'
+			unit<uint32> sub := = 'select_with_org_rel(gg2015_src_rel == typeringen/bbg/V/'+Name+')'
 			{
-				attribute<geometries/rdc>      geometry_rd (polygon) := BBG/geometry_rd[nr_OrgEntity];
+				attribute<geometries/rdc>      geometry_rd (polygon) := BBG/geometry_rd[org_rel];
 				attribute<m2>                  area                  := area(geometry_rd, m2);
 			}
 
@@ -479,60 +541,86 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 		,	StorageType     = "gdal.grid"
 		,	StorageReadOnly = "True";
 		
-		unit<uint32> Natura2000_v2020
-		:  StorageName = "%SourceDataDir%/SpatialData/Natura2000_end2020_epsg3035.shp"
-		,  StorageType = "gdal.vect"
-		,	StorageReadOnly = "True"
-		, DialogData = "geometry_rd"
-		, DialogType = "map"
-		, SyncMode = "none"
+		container Natura2000_2024
+		:	StorageName     = "%RSo_DataDir%/Beleid/EU/natura2000_20241119.gpkg"
+		,	StorageType     = "gdal.vect"
+		,	SyncMode        = "AllTables"
+		,	DialogData      = "rdc"
 		{
-			attribute<LambertEA>  geometry (poly);
-			attribute<rdc>        geometry_rd (poly) := geometry[rdc];
-			attribute<bool>       IsNL               := rjoin(id(.), seq2points/SequenceNr, seq2points/IsNL);
-			
-			unit<uint32> seq2points := sequence2points(geometry_rd)
+			unit<uint32> n2000
 			{
-				attribute<float32> x := pointcol(point);
-				attribute<float32> y := pointrow(point);
-				
-				attribute<bool>    IsNL := x >= x_min && x <= x_max && y >= y_min && y <= y_max;
-				
-				parameter<m> x_min  := /Brondata/regios/nederland/NL_BoundingBox/x_min;
-				parameter<m> x_max  := /Brondata/regios/nederland/NL_BoundingBox/x_max;
-				parameter<m> y_min  := /Brondata/regios/nederland/NL_BoundingBox/y_min;
-				parameter<m> y_max  := /Brondata/regios/nederland/NL_BoundingBox/y_max;
-			}
-			// attribute<.>               per_grid (rdc_100m) := poly2grid(geometry, rdc_100m);
-			
-
-			// Linkonder   = xmin/ymin
-			// rechtsonder = xmax/ymin
-			
-			// parameter<m> x_min  := 0[m];
-			// parameter<m> x_max  := 280000[m]; 
-			// parameter<m> y_min  := 300000[m];
-			// parameter<m> y_max  := 625000[m];
-
-			
-			// attribute<bool>          IsNL := IsDefined(point_in_polygon(centroid_or_mid(geometry_rd), /Brondata/regios/nederland/NL_BoundingBox/polygon));
-			
-			unit<uint32> NL := subset(IsNL)
-			{
-				attribute<rdc>        geometry (poly) := ../geometry_rd[nr_OrgEntity];
+				unit<UInt32> split := geos_split_union_polygon(geometry)
+				{
+					attribute<rdc> geometry_outer (poly) := bg_outer_multi_polygon(geometry);
+				}
+				attribute<.> Per_rdc_100m (rdc_100m) := poly2grid(geometry, rdc_100m);
 				
 				container DistanceTo
 				{
-					unit<uint32>      segments                    := arc2segm(../geometry);
-					unit<uint32>      pointset                    := dyna_point(segments/point, segments/nextpoint, value(100, m)), DialogType = "Map", DialogData = "point"
+					unit<UInt32> segments := arc2segm(../split/geometry_outer)
 					{
-						attribute<rdc_100m> grid_rel        := point[rdc_100m];
+						// For visualisation
+						attribute<rdc>                  geometry (arc)                 := points2sequence(PointSet/Point, PointSet/SeqNr, PointSet/Ordinal);
+						unit<UInt32> PointSet := union_unit(.,.)
+						{
+							attribute<rdc>                   Point   := Union_Data(., ../Point, ../NextPoint);
+							attribute<..>                          SeqNr   := value(id(.) % NrOfRows(..), ..);
+							attribute<UInt32>                      Ordinal := id(.) / NrOfRows(..);
+						}
 					}
-					attribute<m>      DistTo (rdc_100m)     := GridDist(resistance, pointset/grid_rel, const(0, pointset, m));
-					attribute<m>      resistance (rdc_100m) := const(100,rdc_100m,m);
+					unit<UInt32> pointset := dyna_point(segments/point, segments/nextpoint, value(rdc_100m/gridsize, m)), DialogType = "Map", DialogData = "point"
+					{
+						attribute<rdc_100m> Per_rdc_100m := point[rdc_100m];
+					}
+					attribute<m>  resistance       (rdc_100m) := const(rdc_100m/gridsize, rdc_100m, m);
+					attribute<m>  DistTo           (rdc_100m) := GridDist(resistance, pointset/Per_rdc_100m, const(0, pointset, m)), Descr = "Afstand tot het dichtstbijzijnde Natura2000 gebied in meters, op AllocDomain";
+					attribute<km> Write_DistTo_km  (rdc_100m) := IsDefined(Per_rdc_100m) ? 0[km] : convert(DistTo, km), StorageName = "%RSo_DataDir%/Beleid/EU/DistTo_Natura2000_2020_km_100m.tif", StorageType = "gdalwrite.grid";
+					attribute<km> DistTo_km        (rdc_100m) : StorageName = "%RSo_DataDir%/Beleid/EU/DistTo_Natura2000_2020_km_100m.tif", StorageType = "gdal.grid", StorageReadOnly = "true";
 				}
 			}
 		}
+		
+		// unit<uint32> Natura2000_v2020
+		// :  StorageName = "%SourceDataDir%/SpatialData/Natura2000_end2020_epsg3035.shp"
+		// ,  StorageType = "gdal.vect"
+		// ,	StorageReadOnly = "True"
+		// , DialogData = "geometry_rd"
+		// , DialogType = "map"
+		// , SyncMode = "none"
+		// {
+			// attribute<LambertEA>  geometry (poly);
+			// attribute<rdc>        geometry_rd (poly) := geometry[rdc];
+			// attribute<bool>       IsNL               := rjoin(id(.), seq2points/sequence_rel, seq2points/IsNL);
+			
+			// unit<uint32> seq2points := sequence2points(geometry_rd)
+			// {
+				// attribute<float32> x := pointcol(point);
+				// attribute<float32> y := pointrow(point);
+				
+				// attribute<bool>    IsNL := x >= x_min && x <= x_max && y >= y_min && y <= y_max;
+				
+				// parameter<m> x_min  := /Brondata/regios/nederland/NL_BoundingBox/x_min;
+				// parameter<m> x_max  := /Brondata/regios/nederland/NL_BoundingBox/x_max;
+				// parameter<m> y_min  := /Brondata/regios/nederland/NL_BoundingBox/y_min;
+				// parameter<m> y_max  := /Brondata/regios/nederland/NL_BoundingBox/y_max;
+			// }
+			
+			// unit<uint32> NL := select_with_org_rel(IsNL)
+			// {
+				// attribute<rdc>        geometry (poly) := ../geometry_rd[org_rel];
+				
+				// container DistanceTo
+				// {
+					// unit<uint32>      segments                    := arc2segm(../geometry);
+					// unit<uint32>      pointset                    := dyna_point(segments/point, segments/nextpoint, value(100, m)), DialogType = "Map", DialogData = "point"
+					// {
+						// attribute<rdc_100m> grid_rel        := point[rdc_100m];
+					// }
+					// attribute<m>      DistTo (rdc_100m)     := GridDist(resistance, pointset/grid_rel, const(0, pointset, m));
+					// attribute<m>      resistance (rdc_100m) := const(100,rdc_100m,m);
+				// }
+			// }
+		// }
 		
 		unit<uint32> Bufferzones_2005_src
 		:  StorageName = "%AltSourceDataDir%/RuimteBeslag/bufferzones_2005.shp"
@@ -626,7 +714,8 @@ container Brondata:  using = "eenheden;geometries;typeringen"
 		attribute<km>         DistTo_Urban_Contour_2000     (rdc_100m) := convert(DistTo_Urban_Contour_2000_src, km);
 		attribute<km>         DistTo_GroeneHart_2004        (rdc_100m) := convert(GroeneHart_2004_src/DistanceTo/DistTo, km);
 		attribute<km>         DistTo_EHS_1990               (rdc_100m) := convert(EHS_1990_src/DistanceTo/DistTo, km);   
-		attribute<km>         DistTo_Natura2000_2020        (rdc_100m) := convert(Natura2000_v2020/NL/DistanceTo/DistTo, km);
+		// attribute<km>         DistTo_Natura2000_2020        (rdc_100m) := convert(Natura2000_v2020/NL/DistanceTo/DistTo, km);
+		attribute<km>         DistTo_Natura2000_2024        (rdc_100m) := Natura2000_2024/n2000/DistanceTo/DistTo_km;
 		attribute<min>        tt_100kinhab_min_2017_0       (rdc_100m) := convert(MakeDefined(Reistijd100kInw_src, max(Reistijd100kInw_src)), min) > 120[min] ? 120[min] : convert(MakeDefined(Reistijd100kInw_src, max(Reistijd100kInw_src)), min);
 		attribute<min>        tt_100kinhab_min_2017         (rdc_100m) := tt_100kinhab_min_2017_0 < 1[min] ? 1[min] :  tt_100kinhab_min_2017_0;
 		attribute<uint32>     Vinex                         (rdc_100m) := MakeDefined(Vinex_src, 0);

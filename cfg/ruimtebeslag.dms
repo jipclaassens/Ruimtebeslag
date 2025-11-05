@@ -13,7 +13,7 @@ container Ruimtebeslag
 	{
 		unit<fpoint> rdc_base   : DialogData = "ngr_layer", SpatialReference = "EPSG:28992";
 		unit<fpoint> rdc       := range(rdc_base, point_xy(x_min, y_min,rdc_base), point_xy(x_max, y_max,rdc_base));
-		unit<ipoint> rdc_mm    := gridset(rdc, point(0.001,0.001), point(0.0, 0.0), ipoint);
+		unit<ipoint> rdc_mm    := gridset(rdc, point_xy(0.001,0.001), point_xy(0.0, 0.0), ipoint);
 		
 		unit<dpoint> LambertEA: Descr = "ETRS_1989_LAEA_52N_10E" // "coords from SW to NE";
 		, SpatialReference = "EPSG:3035"; // EPSG code for Lambert EA
@@ -32,9 +32,9 @@ container Ruimtebeslag
 				parameter<m>       gridgrootte;
 				parameter<m>       afkapstraal;
 				parameter<float32> straal                 := afkapstraal / gridgrootte;
-				unit<spoint>       potRange               := range(spoint, point(-straal[int16], -straal[int16]), point(straal[int16] + 1s, straal[int16] + 1s))
+				unit<spoint>       potRange               := range(spoint, point_xy(-straal[int16], -straal[int16]), point_xy(straal[int16] + 1s, straal[int16] + 1s))
 				{
-					attribute<Dist2Range> distMatr        := dist2(point(0s, 0s, potRange), Dist2Range);
+					attribute<Dist2Range> distMatr        := dist2(point_xy(0s, 0s, potRange), Dist2Range);
 					attribute<float32> distMatr_f         := distMatr[float32];
 					attribute<float32> AbsWeight          := distMatr[float32] <= (straal * straal) ? 1f / (distMatr[float32] ^ 2f) : 0f;
 					attribute<float32> RelWeightSqrt      := AbsWeight / Sum(AbsWeight);
@@ -205,10 +205,10 @@ container Ruimtebeslag
 		}
 		///////
 		
-		unit<uint32> points := Subset(domain/IsNederland)
+		unit<uint32> points := select_with_org_rel(domain/IsNederland)
 		{
-			attribute<geometries/rdc> 	geometry  := domain/point_rd[nr_OrgEntity];	
-			attribute<uint32>           id        := domain/identificatie[nr_OrgEntity];
+			attribute<geometries/rdc> 	geometry  := domain/point_rd[org_rel];	
+			attribute<uint32>           id        := domain/identificatie[org_rel];
 			
 			attribute<float32>          x         := PointCol(geometry);
 			attribute<float32>          y         := PointRow(geometry);
