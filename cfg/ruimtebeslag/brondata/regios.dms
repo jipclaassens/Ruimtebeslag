@@ -378,7 +378,7 @@ container regios : using = "geometries"
 			attribute<uint32>           woz                       := rjoin(BU_CODE, woz_buurt/woz_2016/CODERING, uint32(woz_buurt/woz_2016/GEMIDDELDE_WONINGWAARDE));
 		}
 		unit<uint32> src_2019
-		:	StorageName     = "%AltSourceDataDir%/CBS/2019/buurt_2019_v1.shp"
+		:	StorageName     = "%RuimtebeslagDir%/RegioIndelingen/buurt_2019_v1.shp"
 		,	StorageType     = "gdal.vect"
 		,	StorageReadOnly = "True"
 		{

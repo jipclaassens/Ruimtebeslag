@@ -1,21 +1,28 @@
 heads/main
 On branch main
-Your branch is up to date with 'origin/main'.
+Your branch and 'origin/main' have diverged,
+and have 1 and 3 different commits each, respectively.
+  (use "git pull" if you want to integrate the remote branch with yours)
+
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+	modified:   cfg/ruimtebeslag/ConfigSettings.dms
+	modified:   cfg/ruimtebeslag/analyse.dms
+	modified:   cfg/ruimtebeslag/brondata.dms
+	modified:   cfg/ruimtebeslag/brondata/IBIS.dms
+	modified:   cfg/ruimtebeslag/brondata/bag.dms
+	modified:   cfg/ruimtebeslag/brondata/regios.dms
+	modified:   cfg/ruimtebeslag/eenheden.dms
 
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
   (use "git restore <file>..." to discard changes in working directory)
 	modified:   cfg/ruimtebeslag.dms
+	modified:   cfg/ruimtebeslag/ConfigSettings.dms
 	modified:   cfg/ruimtebeslag/analyse.dms
 	modified:   cfg/ruimtebeslag/brondata.dms
-	modified:   cfg/ruimtebeslag/brondata/bag.dms
-	modified:   cfg/ruimtebeslag/brondata/regios.dms
-	modified:   cfg/ruimtebeslag/typeringen.dms
+	modified:   git.txt
 
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	git.txt
-	stata/
-
-no changes added to commit (use "git add" and/or "git commit -a")
-847628be1193d8cd9fed39926ad267e691710a23
+0a14dd07fc4bc26f1b1a1dc9ac32261121a9a0e4

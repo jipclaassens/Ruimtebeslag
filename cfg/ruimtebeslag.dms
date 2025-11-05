@@ -11,8 +11,8 @@ container Ruimtebeslag
 	
 	container geometries: using = "eenheden"
 	{
-		unit<fpoint> rdc_base   : DialogData = "ngr_layer", SpatialReference = "EPSG:28992";
-		unit<fpoint> rdc       := range(rdc_base, point_xy(x_min, y_min,rdc_base), point_xy(x_max, y_max,rdc_base));
+		unit<dpoint> rdc_base   : DialogData = "ngr_layer", SpatialReference = "EPSG:28992";
+		unit<dpoint> rdc       := range(rdc_base, point_xy(x_min, y_min,rdc_base), point_xy(x_max, y_max,rdc_base));
 		unit<ipoint> rdc_mm    := gridset(rdc, point_xy(0.001,0.001), point_xy(0.0, 0.0), ipoint);
 		
 		unit<dpoint> LambertEA: Descr = "ETRS_1989_LAEA_52N_10E" // "coords from SW to NE";
@@ -31,7 +31,7 @@ container Ruimtebeslag
 			{
 				parameter<m>       gridgrootte;
 				parameter<m>       afkapstraal;
-				parameter<float32> straal                 := afkapstraal / gridgrootte;
+				parameter<float32> straal                 := float32(afkapstraal / gridgrootte);
 				unit<spoint>       potRange               := range(spoint, point_xy(-straal[int16], -straal[int16]), point_xy(straal[int16] + 1s, straal[int16] + 1s))
 				{
 					attribute<Dist2Range> distMatr        := dist2(point_xy(0s, 0s, potRange), Dist2Range);
@@ -87,7 +87,7 @@ container Ruimtebeslag
 			{
 				parameter<m>                    gridsize        := ../gridsize;
 				parameter<int32>                nr_cols         := ../nr_cols;
-				attribute<rdc>                  point           := mapping(., rdc) + point_yx(-0.5f * gridsize, 0.5f * gridsize, rdc);
+				attribute<rdc>                  point           := mapping(., rdc) + point_yx(-0.5d * gridsize, 0.5d * gridsize, rdc);
 				unit<uint32>                    id_key          := range(uint32, 0, uint32(#domain));
 				attribute<uint32>               id_rel          := value(uint32(pointrow(id(.))) * uint32(nr_cols) + uint32(pointcol(id(.))), id_key);
 				
@@ -112,8 +112,8 @@ container Ruimtebeslag
 			{
 				attribute<uint32>               id_rel    := org_rel -> id_rel;
 				attribute<rdc>                  geometry  := org_rel -> point;
-				attribute<float32>              x         := PointCol(geometry);
-				attribute<float32>              y         := PointRow(geometry);
+				attribute<float64>              x         := PointCol(geometry);
+				attribute<float64>              y         := PointRow(geometry);
 				attribute<domain>               grid_rel  := geometry[domain];	
 			}
 		}

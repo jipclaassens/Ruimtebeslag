@@ -1,12 +1,12 @@
 container BAG : using = "typeringen;eenheden"
 {      
-	unit<uint32>				RegioUnit_buurt     	:= brondata/regios/buurten/src_2012;
-	unit<uint32>				RegioUnit_wijk    		:= brondata/regios/wijken/src_2012;
-	unit<uint32>				RegioUnit_gem    		:= BronData/regios/gemeenten/gem_2012/gem_uq;
-	unit<uint32>				RegioUnit_nvm    		:= BronData/regios/nvm/src;
-	unit<uint32>				RegioUnit_prov   		:= BronData/regios/provincies/src_2012;
+	// unit<uint32>				RegioUnit_buurt     	:= brondata/regios/buurten/src_2012;
+	// unit<uint32>				RegioUnit_wijk    		:= brondata/regios/wijken/src_2012;
+	// unit<uint32>				RegioUnit_gem    		:= BronData/regios/gemeenten/gem_2012/gem_uq;
+	// unit<uint32>				RegioUnit_nvm    		:= BronData/regios/nvm/src;
+	// unit<uint32>				RegioUnit_prov   		:= BronData/regios/provincies/src_2012;
 	unit<uint32>				RegioUnit_pc4   		:= BronData/regios/Postcode_gebieden/Postcode4;
-	unit<uint32>				RegioUnit_nl   			:= BronData/regios/nederland/src;
+	// unit<uint32>				RegioUnit_nl   			:= BronData/regios/nederland/src;
 	unit<uint32>				RegioUnit_MRA           := Brondata/regios/MRA/MRA1;
 	unit<uint32>				RegioUnit_Aggl          := Brondata/regios/gemeenten/gem_src/j2019/UrbanCores;
 	
@@ -134,7 +134,7 @@ container BAG : using = "typeringen;eenheden"
 							typeringen/vbo_gebruiksdoel_plus/name
 							,'((sum(vbo_domein/gebruiksdoelen/'+vbo_gebruiksdoel_plus/name+' ? vbo_domein/oppervlakte_trunc[m2] : (0/0)[m2], vbo_domein/pand_rel)) / sum_vbo_opp) * footprint'
 							, pand_met_vbo_alle_functies
-							, float32
+							, float64
 						)
 					{
 						attribute<typeringen/vbo_gebruiksdoel_plus> ArgMax (..) := ='!IsDefined(bijeenkomst) ? (0/0)[typeringen/vbo_gebruiksdoel_plus] : ArgMax('+AsItemList(typeringen/vbo_gebruiksdoel_plus/name)+')[typeringen/vbo_gebruiksdoel_plus]';
@@ -145,7 +145,7 @@ container BAG : using = "typeringen;eenheden"
 							typeringen/vbo_gebruiksdoel_plus/name
 							,'sum(Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+')'
 							, void
-							, float32
+							, float64
 						);
 						
 					container Footprint_VBOOpp_per_vbo_functie_ha :=
@@ -159,11 +159,8 @@ container BAG : using = "typeringen;eenheden"
 					container Footprint_VBOOpp_per_vbo_functie_ha_uitgesmeerd :=
 						for_each_nedv(
 							typeringen/vbo_gebruiksdoel_plus/name
-							,'sum(
-								(Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+'[per_grid_10m] / count_10m_per_pand)
-								, rdc_10m/rdc_100m_rel
-							)[m2] 
-							/ 1[Ha] > 10000[m2_ha] 
+							,'sum((Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+'[per_grid_10m] / count_10m_per_pand)
+								, rdc_10m/rdc_100m_rel)[m2]/ 1[Ha] > 10000[m2_ha] 
 								? 10000[m2_ha] 
 								: sum((Footprint_VBOOpp_per_vbo_functie/'+typeringen/vbo_gebruiksdoel_plus/name+'[per_grid_10m] / count_10m_per_pand), rdc_10m/rdc_100m_rel)[m2] / 1[Ha]'
 							, rdc_100m
@@ -171,7 +168,7 @@ container BAG : using = "typeringen;eenheden"
 						);
 					
 					attribute<uint32>     per_grid_10m                    (rdc_10m)             := poly2grid(geometry, rdc_10m);
-					attribute<float32>    count_10m_per_pand              (rdc_10m)             := (pcount(per_grid_10m)[per_grid_10m])[float32];
+					attribute<float64>    count_10m_per_pand              (rdc_10m)             := (pcount(per_grid_10m)[per_grid_10m])[float64];
 					// attribute<m2>         opp_uitgesmeerd_op_grid_10m     (rdc_10m)             := footprint[per_grid_10m] / count_10m_per_pand;
 					// attribute<m2_ha>      opp_obv10m_per_domain_grid_src  (rdc_100m)                 := sum(opp_uitgesmeerd_op_grid_10m, rdc_10m/rdc_100m_rel)[m2] / 1[Ha];
 					// attribute<m2_ha>      opp_obv10m_per_domain_grid      (rdc_100m)                 := opp_obv10m_per_domain_grid_src > 10000[m2_ha] ? 10000[m2_ha] : opp_obv10m_per_domain_grid_src;
